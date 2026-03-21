@@ -9,10 +9,102 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        
         .gradient-text {
             background: linear-gradient(90deg, #4f46e5, #06b6d4);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        /* Efecto hover para el enlace "Inicio" */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #1578b2;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 8px rgba(38, 33, 183, 0.6);
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .nav-link:hover {
+            color: #4f46e5;
+        }
+
+        /* Efecto de iluminación para el botón de Login */
+        .btn-glow {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px -3px rgba(79, 70, 229, 0.4);
+        }
+        .btn-glow:hover {
+            background-color: #4338ca;
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.7);
+            transform: translateY(-1px);
+        }
+
+        /* Efecto de iluminación para la ilustración */
+        .glow-hover {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glow-hover:hover {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 20px rgba(79, 70, 229, 0.4));
+        }
+
+        /* Efecto de iluminación para las tarjetas */
+        .card-light {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-light:hover {
+            transform: translateY(-5px);
+            background-color: white;
+            border-color: #4f46e5;
+            box-shadow: 0 10px 30px -10px rgba(79, 70, 229, 0.2);
+        }
+        .card-light::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, rgba(79, 70, 229, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .card-light:hover::after {
+            opacity: 1;
+        }
+
+         .circle-hover-effect {
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .circle-hover-effect:hover {
+            transform: scale(1.05);
+            border-radius: 50%;
+            filter: saturate(1.1) drop-shadow(0 0 40px rgba(79, 70, 229, 0.5));
+        }
+
+        .card-light {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-light:hover {
+            transform: translateY(-5px);
+            background-color: white;
+            border-color: #4f46e5;
+            box-shadow: 0 10px 30px -10px rgba(79, 70, 229, 0.2);
         }
     </style>
 </head>
@@ -30,15 +122,11 @@
                     <span class="text-2xl font-bold tracking-tight text-slate-800">Talent<span class="text-indigo-600">Flow</span></span>
                 </div>
 
-                <!-- Menú de Navegación -->
+                <!-- Menú de Navegación con efectos hover -->
                 <nav class="flex space-x-8 items-center">
-                    <a href="#inicio" class="text-slate-600 hover:text-indigo-600 font-medium transition">Inicio</a>
-                    <a href="inicio_sesion.html" class="bg-indigo-600 text-white px-8 py-2.5 rounded-full font-semibold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
-                        Iniciar Sesión
-                    </a>
-                    <a href="registrarse.html" class="bg-indigo-600 text-white px-8 py-2.5 rounded-full font-semibold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
-                        Registrarse
-                    </a>
+                    <a href="#inicio" class="nav-link text-slate-600 font-medium">Inicio</a>
+                    <a href="inicio_sesion.html" class="nav-link text-slate-600 font-medium">Inicio de Sesion</a>
+                    <a href="registro.html" class="nav-link text-slate-600 font-medium">Registro</a>
                 </nav>
             </div>
         </div>
@@ -64,9 +152,12 @@
                     </button>
                 </div>
             </div>
-            <div class="lg:w-1/2">
-                <div class="rounded-3xl overflow-hidden shadow-2xl transform lg:rotate-2 hover:rotate-0 transition duration-500">
-                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80" alt="" class="w-full h-[500px] object-cover">
+            <div class="lg:w-1/2 flex justify-center">
+                <div class="relative w-full max-w-md aspect-square circle-hover-effect cursor-pointer">
+                    <div class="absolute inset-0 bg-indigo-600/10 blur-2xl -z-10"></div>
+                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1000&q=80" 
+                         alt="[Imagen de equipo colaborando]" 
+                         class="w-full h-full object-cover">
                 </div>
             </div>
         </div>
@@ -75,26 +166,29 @@
     <!-- Información Corporativa -->
     <section class="py-24 bg-white px-4">
         <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-12">
-            <div class="p-8 rounded-2xl bg-slate-50 border border-slate-100">
-                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center mb-6">
+            <!-- Tarjeta con Iluminación al pasar el mouse -->
+            <div class="p-8 rounded-2xl bg-slate-50 border border-slate-100 card-light cursor-default">
+                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center mb-6 z-10 relative">
                     <i class="fas fa-chart-line text-xl"></i>
                 </div>
-                <h3 class="text-xl font-bold mb-3">Estrategia de Crecimiento</h3>
-                <p class="text-slate-500">Diseñamos planes de carrera alineados con los objetivos globales de su empresa.</p>
+                <h3 class="text-xl font-bold mb-3 z-10 relative">Estrategia de Crecimiento</h3>
+                <p class="text-slate-500 z-10 relative">Diseñamos planes de carrera alineados con los objetivos globales de su empresa.</p>
             </div>
-            <div class="p-8 rounded-2xl bg-slate-50 border border-slate-100">
-                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center mb-6">
+
+            <div class="p-8 rounded-2xl bg-slate-50 border border-slate-100 card-light cursor-default">
+                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center mb-6 z-10 relative">
                     <i class="fas fa-user-check text-xl"></i>
                 </div>
-                <h3 class="text-xl font-bold mb-3">Evaluación de Desempeño</h3>
-                <p class="text-slate-500">Herramientas psicométricas y técnicas para medir el potencial real de cada individuo.</p>
+                <h3 class="text-xl font-bold mb-3 z-10 relative">Evaluación de Desempeño</h3>
+                <p class="text-slate-500 z-10 relative">Herramientas psicométricas y técnicas para medir el potencial real de cada individuo.</p>
             </div>
-            <div class="p-8 rounded-2xl bg-slate-50 border border-slate-100">
-                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center mb-6">
+
+            <div class="p-8 rounded-2xl bg-slate-50 border border-slate-100 card-light cursor-default">
+                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center mb-6 z-10 relative">
                     <i class="fas fa-shield-alt text-xl"></i>
                 </div>
-                <h3 class="text-xl font-bold mb-3">Retención de Talento</h3>
-                <p class="text-slate-500">Programas de bienestar y cultura organizacional para minimizar la rotación.</p>
+                <h3 class="text-xl font-bold mb-3 z-10 relative">Retención de Talento</h3>
+                <p class="text-slate-500 z-10 relative">Programas de bienestar y cultura organizacional para minimizar la rotación.</p>
             </div>
         </div>
     </section>
@@ -110,45 +204,11 @@
             </div>
             <p class="text-slate-400 text-sm">© 2024 TalentFlow Consulting. Todos los derechos reservados.</p>
             <div class="flex space-x-6 text-slate-400">
-                <a href="#" class="hover:text-white transition"><i class="fab fa-linkedin-in text-xl"></i></a>
-                <a href="#" class="hover:text-white transition"><i class="fab fa-twitter text-xl"></i></a>
-                <a href="#" class="hover:text-white transition"><i class="fab fa-instagram text-xl"></i></a>
+                <a href="#" class="hover:text-white transition hover:scale-125"><i class="fab fa-linkedin-in text-xl"></i></a>
+                <a href="#" class="hover:text-white transition hover:scale-125"><i class="fab fa-twitter text-xl"></i></a>
+                <a href="#" class="hover:text-white transition hover:scale-125"><i class="fab fa-instagram text-xl"></i></a>
             </div>
         </div>
     </footer>
-
-    <!-- Modal de Login (Solo visual para demostración) -->
-    <div id="loginModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 relative">
-            <button onclick="closeLoginModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-            <h2 class="text-3xl font-bold mb-2 text-center text-slate-900">Acceso</h2>
-            <p class="text-slate-500 text-center mb-8">Ingresa a la plataforma de gestión.</p>
-            
-            <form class="space-y-4" onsubmit="event.preventDefault()">
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Email</label>
-                    <input type="email" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition" placeholder="usuario@empresa.com">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold mb-1">Contraseña</label>
-                    <input type="password" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition" placeholder="••••••••">
-                </div>
-                <button class="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-lg mt-4">
-                    Iniciar Sesión
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function openLoginModal() {
-            document.getElementById('loginModal').style.display = 'flex';
-        }
-        function closeLoginModal() {
-            document.getElementById('loginModal').style.display = 'none';
-        }
-    </script>
 </body>
 </html>
