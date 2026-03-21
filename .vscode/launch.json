@@ -7,7 +7,7 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Open inicio.html",
+            "name": "Open app.py",
             "file": "c:\\Users\\josep\\Desktop\\computacion\\avances\\proyecto\\proyecto_intro\\paginas\\inicio.html"
         }
     ]

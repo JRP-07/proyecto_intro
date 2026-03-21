@@ -14,7 +14,6 @@
             transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
         }
 
-        /* Contenedor de cristal con efecto blur */
         .glass-card {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
@@ -22,11 +21,9 @@
             transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Fondos dinámicos */
         .bg-user { background-color: #f8fafc; }
         .bg-enterprise { background-color: #0f172a; }
 
-        /* Efectos de brillo ambiental */
         .glow-user {
             background: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.1) 0%, transparent 40%);
         }
@@ -34,7 +31,6 @@
             background: radial-gradient(circle at 90% 10%, rgba(6, 182, 212, 0.2) 0%, transparent 50%);
         }
 
-        /* Selector deslizable */
         .type-selector {
             display: flex;
             background: #e2e8f0;
@@ -72,7 +68,6 @@
         .is-enterprise .type-option.active { color: #0891b2; }
         .active { color: #4f46e5; }
 
-        /* Icono central animado */
         .icon-container {
             width: 85px;
             height: 85px;
@@ -95,7 +90,6 @@
             color: #4f46e5;
         }
 
-        /* Adaptación de campos para modo empresa */
         .is-enterprise-theme .glass-card {
             background: rgba(255, 255, 255, 0.98);
             border-color: #0891b2;
@@ -114,11 +108,10 @@
     </style>
 </head>
 <body id="mainBody" class="bg-user min-h-screen flex items-center justify-center p-6">
-    <!-- Capa de brillo dinámico -->
     <div id="glowEffect" class="fixed inset-0 glow-user pointer-events-none"></div>
 
     <div class="w-full max-w-lg z-10">
-        <!-- Logo con enlace al Home -->
+        <!-- Enlace a inicio.html (Landing) -->
         <div class="flex items-center justify-center space-x-3 mb-10 cursor-pointer group" onclick="window.location.href='/'">
             <div id="logoBox" class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-xl transition-all duration-500 group-hover:scale-110">
                 <i class="fas fa-rocket text-white text-2xl"></i>
@@ -128,10 +121,7 @@
             </span>
         </div>
 
-        <!-- Tarjeta de Autenticación -->
         <div id="loginCard" class="glass-card p-10 md:p-12 rounded-[3.5rem] shadow-2xl is-user-theme">
-            
-            <!-- Avatar / Icono de Estado -->
             <div id="visualIcon" class="icon-container shadow-inner">
                 <i id="mainIcon" class="fas fa-user-astronaut text-4xl"></i>
             </div>
@@ -139,7 +129,7 @@
             <h1 id="mainTitle" class="text-3xl font-bold text-slate-900 mb-2 text-center tracking-tight">Acceso Personal</h1>
             <p id="mainDesc" class="text-slate-500 text-center mb-8">Gestiona tu carrera profesional</p>
 
-            <!-- Alerta de Errores (Oculta por defecto) -->
+            <!-- Contenedor de errores dinámico -->
             <div id="errorMessage" class="mb-8 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded-r-2xl">
                 <div class="flex items-center">
                     <i class="fas fa-exclamation-circle mr-3"></i>
@@ -150,14 +140,12 @@
                 </div>
             </div>
 
-            <!-- Selector Deslizable: Talento vs Empresa -->
             <div id="selectorContainer" class="type-selector mb-10 mx-auto max-w-[300px] border border-slate-200">
                 <div id="optionUser" class="type-option active" onclick="updateTheme('user')">Talento</div>
                 <div id="optionBusiness" class="type-option" onclick="updateTheme('business')">Empresa</div>
                 <div class="type-active-bg"></div>
             </div>
 
-            <!-- Formulario de Login -->
             <form id="loginForm" class="space-y-6">
                 <div>
                     <label id="labelIdentifier" class="block text-sm font-bold text-slate-700 mb-2 ml-2">Correo Electrónico</label>
@@ -165,7 +153,7 @@
                         <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
                             <i id="inputIcon" class="fas fa-at"></i>
                         </span>
-                        <input type="email" id="email" required 
+                        <input type="email" id="email" name="email" required 
                                class="w-full pl-14 pr-6 py-4 bg-white/50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white transition-all shadow-sm placeholder:text-slate-300" 
                                placeholder="ejemplo@correo.com">
                     </div>
@@ -180,7 +168,7 @@
                         <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
                             <i class="fas fa-key"></i>
                         </span>
-                        <input type="password" id="password" required 
+                        <input type="password" id="password" name="password" required 
                                class="w-full pl-14 pr-6 py-4 bg-white/50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white transition-all shadow-sm placeholder:text-slate-300" 
                                placeholder="••••••••">
                     </div>
@@ -191,20 +179,17 @@
                 </button>
             </form>
 
-            <!-- Pie de tarjeta -->
             <div class="mt-10 text-center">
                 <p class="text-slate-400 text-sm font-medium">
                     ¿No tienes una cuenta? 
-                    <a href="/register" id="linkAction" class="text-indigo-600 font-extrabold hover:underline">Regístrate gratis</a>
+                    <a href="javascript:void(0)" onclick="alert('Módulo de registro en desarrollo')" id="linkAction" class="text-indigo-600 font-extrabold hover:underline">Regístrate gratis</a>
                 </p>
             </div>
         </div>
     </div>
 
     <script>
-        /**
-         * Actualiza el diseño visual dinámicamente según el tipo de usuario seleccionado.
-         */
+        // Función para cambiar visualmente entre Talento y Empresa
         function updateTheme(type) {
             const body = document.getElementById('mainBody');
             const glow = document.getElementById('glowEffect');
@@ -213,7 +198,6 @@
             const optUser = document.getElementById('optionUser');
             const optBusiness = document.getElementById('optionBusiness');
             
-            // Elementos de texto e iconos
             const title = document.getElementById('mainTitle');
             const desc = document.getElementById('mainDesc');
             const icon = document.getElementById('mainIcon');
@@ -226,11 +210,9 @@
             const linkAction = document.getElementById('linkAction');
             const errorBox = document.getElementById('errorMessage');
 
-            // Resetear errores al cambiar de modo
             errorBox.style.display = 'none';
 
             if (type === 'business') {
-                // MODO EMPRESA (Dark & Cyan)
                 body.className = 'bg-enterprise min-h-screen flex items-center justify-center p-6';
                 glow.className = 'fixed inset-0 glow-enterprise pointer-events-none';
                 selector.classList.add('is-enterprise');
@@ -249,9 +231,7 @@
                 logoText.classList.replace('text-slate-800', 'text-white');
                 logoSub.className = 'text-cyan-400';
                 linkAction.className = 'text-cyan-500 font-extrabold hover:underline';
-
             } else {
-                // MODO USUARIO (Light & Indigo)
                 body.className = 'bg-user min-h-screen flex items-center justify-center p-6';
                 glow.className = 'fixed inset-0 glow-user pointer-events-none';
                 selector.classList.remove('is-enterprise');
@@ -273,9 +253,7 @@
             }
         }
 
-        /**
-         * Manejo del envío del formulario hacia la API de Flask.
-         */
+        // Manejo del envío del formulario mediante AJAX/Fetch
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -288,14 +266,13 @@
             const submitBtn = document.getElementById('submitBtn');
             const btnText = document.getElementById('btnText');
 
-            // UI Feedback: Cargando
             const originalText = btnText.innerText;
             btnText.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Verificando...';
             submitBtn.disabled = true;
             errorBox.style.display = 'none';
 
             try {
-                // Petición al backend Python (app.py)
+                // Se conecta al endpoint de la API configurado en app.py
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -305,19 +282,17 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Éxito: Redirigir al dashboard enviado por el servidor
+                    // Si el login es correcto, redirige al dashboard definido en app.py
                     window.location.href = data.redirect_url;
                 } else {
-                    // Fallo: Mostrar mensaje de error del backend
+                    // Muestra error devuelto por el servidor Flask
                     errorBox.style.display = 'block';
                     errorText.innerText = data.message || "Credenciales incorrectas.";
                 }
             } catch (err) {
-                // Error de red o servidor apagado
                 errorBox.style.display = 'block';
-                errorText.innerText = "No se pudo establecer conexión con el servidor.";
+                errorText.innerText = "Error de conexión: Asegúrate de que el servidor Flask esté activo.";
             } finally {
-                // Restaurar estado del botón
                 btnText.innerText = originalText;
                 submitBtn.disabled = false;
             }
