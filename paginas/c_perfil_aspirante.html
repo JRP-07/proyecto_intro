@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalentFlow - Completa tu Perfil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .step-circle {
+            transition: all 0.4s ease;
+        }
+
+        .step-active {
+            background-color: #4f46e5;
+            color: white;
+            ring: 4px;
+            ring-color: rgba(79, 70, 229, 0.2);
+        }
+
+        .skill-tag {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .skill-selected {
+            background-color: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+
+        input:invalid {
+            border-color: #b69c0d;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-2xl w-full bg-white rounded-[2.5rem] shadow-2xl overflow-hidden">
+        <!-- Barra de Progreso Superior -->
+        <div class="bg-indigo-600 p-8 text-white">
+            <h1 class="text-2xl font-bold mb-2">Configura tu perfil profesional</h1>
+            <p class="text-indigo-100 text-sm">Cuéntanos sobre ti para conectarte con las mejores oportunidades.</p>
+
+            <div class="flex justify-between mt-8 relative">
+                <div class="absolute top-1/2 left-0 w-full h-0.5 bg-indigo-400 -z-0 -translate-y-1/2"></div>
+                <div id="step-1-dot"
+                    class="step-circle w-10 h-10 rounded-full bg-indigo-700 flex items-center justify-center font-bold z-10 step-active">
+                    1</div>
+                <div id="step-2-dot"
+                    class="step-circle w-10 h-10 rounded-full bg-indigo-700 flex items-center justify-center font-bold z-10">
+                    2</div>
+                <div id="step-3-dot"
+                    class="step-circle w-10 h-10 rounded-full bg-indigo-700 flex items-center justify-center font-bold z-10">
+                    3</div>
+            </div>
+        </div>
+
+        <form id="onboardingForm" class="p-10">
+            <!-- PASO 1: Identidad y Contacto -->
+            <div id="step-1" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Nombre Completo</label>
+                        <input type="text" id="nombre" required pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$"
+                            title="Solo se permiten letras y espacios"
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                            placeholder="Juan Pérez">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Edad</label>
+                        <input type="number" id="edad" required min="17" max="29"
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                            placeholder="25">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Teléfono</label>
+                        <input type="tel" id="telefono" required pattern="^[0-9+-\s]{8,15}$"
+                            title="Ingrese un número de teléfono válido (8-15 dígitos)"
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                            placeholder="+504 9999-9999">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Residencia</label>
+                        <input type="text" id="residencia" required minlength="3"
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                            placeholder="Ciudad, País">
+                    </div>
+                </div>
+                <button type="button" onclick="nextStep(2)"
+                    class="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition">Siguiente</button>
+            </div>
+
+            <!-- PASO 2: Educación y Preferencias -->
+            <div id="step-2" class="hidden space-y-6">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Nivel de Estudios</label>
+                    <select id="estudios" onchange="toggleFileUploader()"
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                        <option value="ninguno">Sin estudios formales</option>
+                        <option value="primaria">Primaria Completa</option>
+                        <option value="secundaria">Secundaria Completa</option>
+                        <option value="universitario">Universitario Completo</option>
+                        <option value="tecnico">Técnico Completo</option>
+                        <option value="maestria">Maestría Completa</option>
+                        <option value="doctorado">Doctorado Completo</option>
+                    </select>
+                </div>
+
+                <div id="file-uploader" class="hidden animate-pulse">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Sube un comprobante de estudios</label>
+                    <div
+                        class="border-2 border-dashed border-slate-200 p-4 rounded-xl text-center cursor-pointer hover:border-indigo-400 relative">
+                        <i class="fas fa-cloud-upload-alt text-slate-400 mb-2"></i>
+                        <p id="file-name-display" class="text-xs text-slate-500">PDF, JPG o PNG (máx 5MB)</p>
+                        <input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            id="fileInput" accept=".pdf,.jpg,.jpeg,.png" onchange="validateFile(this)">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">¿Estudias actualmente?</label>
+                    <div class="flex space-x-4">
+                        <label
+                            class="flex-1 border border-slate-200 p-3 rounded-xl cursor-pointer hover:bg-slate-50 text-center">
+                            <input type="radio" name="estudia_hoy" value="si" class="hidden peer">
+                            <span class="peer-checked:text-indigo-600 peer-checked:font-bold">Sí</span>
+                        </label>
+                        <label
+                            class="flex-1 border border-slate-200 p-3 rounded-xl cursor-pointer hover:bg-slate-50 text-center">
+                            <input type="radio" name="estudia_hoy" value="no" class="hidden peer" checked>
+                            <span class="peer-checked:text-indigo-600 peer-checked:font-bold">No</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Jornada de Trabajo</label>
+                    <select id="horario"
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none bg-white">
+                        <option value="completo">Tiempo Completo </option>
+                        <option value="medio">Medio Tiempo</option>
+                    </select>
+                </div>
+
+                <div class="flex space-x-4">
+                    <button type="button" onclick="nextStep(1)"
+                        class="w-1/3 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition">Atrás</button>
+                    <button type="button" onclick="nextStep(3)"
+                        class="w-2/3 py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- PASO 3: Experiencia y Habilidades -->
+            <div id="step-3" class="hidden space-y-6">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">¿Tienes experiencia previa?</label>
+                    <select id="tiene_experiencia" onchange="toggleExperienceFields()"
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none bg-white">
+                        <option value="no">No tengo experiencia</option>
+                        <option value="si">Sí, tengo experiencia</option>
+                    </select>
+                </div>
+
+                <div id="experience-details" class="hidden">
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Años de experiencia</label>
+                    <input type="number" id="anios_exp" min="0" max="50"
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Ej: 2">
+                    <p id="exp-warning" class="text-xs text-red-500 mt-1 hidden font-medium">La experiencia no puede
+                        superar tu edad laboral.</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Modalidad</label>
+                        <select id="modalidad"
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none bg-white">
+                            <option value="remoto">Remoto</option>
+                            <option value="presencial">Presencial</option>
+                            <option value="hibrido">Híbrido</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Jornada</label>
+                        <select id="jornada"
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none bg-white">
+                            <option value="full">Tiempo Completo</option>
+                            <option value="part">Medio Tiempo</option>
+                            <option value="freelance">Por Proyecto</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Tus Habilidades (Máximo 5)</label>
+                    <div id="skills-container" class="flex flex-wrap gap-2">
+                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium"
+                            onclick="toggleSkill(this)">Liderazgo</span>
+                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium"
+                            onclick="toggleSkill(this)">Programación</span>
+                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium"
+                            onclick="toggleSkill(this)">Diseño UI/UX</span>
+                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium"
+                            onclick="toggleSkill(this)">Ventas</span>
+                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium"
+                            onclick="toggleSkill(this)">Marketing Digital</span>
+                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium"
+                            onclick="toggleSkill(this)">Idiomas</span>
+                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium"
+                            onclick="toggleSkill(this)">Resolución de Conflictos</span>
+                    </div>
+                </div>
+
+                <div class="flex space-x-4">
+                    <button type="button" onclick="nextStep(2)"
+                        class="w-1/3 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition">Atrás</button>
+                    <button type="submit"
+                        class="w-2/3 py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">Finalizar
+                        Perfil</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const selectedSkills = new Set();
+        const MAX_SKILLS = 5;
+
+        function nextStep(step) {
+            if (step > currentStep) {
+                const inputs = document.getElementById(`step-${currentStep}`).querySelectorAll('input[required], input:invalid');
+                let isValid = true;
+
+                inputs.forEach(input => {
+                    if (!input.checkValidity()) {
+                        isValid = false;
+                        input.reportValidity();
+                    }
+                });
+
+                if (!isValid) return;
+
+                // Validación lógica de experiencia vs edad
+                if (currentStep === 3) {
+                    const edad = parseInt(document.getElementById('edad').value);
+                    const exp = parseInt(document.getElementById('anios_exp').value || 0);
+                    if (exp > (edad - 14)) {
+                        document.getElementById('exp-warning').classList.remove('hidden');
+                        return;
+                    } else {
+                        document.getElementById('exp-warning').classList.add('hidden');
+                    }
+                }
+            }
+
+            document.getElementById(`step-${currentStep}`).classList.add('hidden');
+            document.getElementById(`step-${step}`).classList.remove('hidden');
+
+            document.getElementById(`step-${currentStep}-dot`).classList.remove('step-active');
+            document.getElementById(`step-${step}-dot`).classList.add('step-active');
+
+            currentStep = step;
+        }
+
+        function validateFile(input) {
+            const file = input.files[0];
+            const display = document.getElementById('file-name-display');
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert("El archivo es demasiado grande (Máximo 5MB)");
+                    input.value = "";
+                    display.innerText = "PDF, JPG o PNG (máx 5MB)";
+                } else {
+                    display.innerText = `Archivo: ${file.name}`;
+                    display.classList.add('text-indigo-600', 'font-bold');
+                }
+            }
+        }
+
+        function toggleFileUploader() {
+            const estudios = document.getElementById('estudios').value;
+            const uploader = document.getElementById('file-uploader');
+            if (estudios !== 'ninguno') {
+                uploader.classList.remove('hidden');
+            } else {
+                uploader.classList.add('hidden');
+            }
+        }
+
+        function toggleExperienceFields() {
+            const tieneExp = document.getElementById('tiene_experiencia').value;
+            const expDetails = document.getElementById('experience-details');
+            if (tieneExp === 'si') {
+                expDetails.classList.remove('hidden');
+                document.getElementById('anios_exp').setAttribute('required', 'true');
+            } else {
+                expDetails.classList.add('hidden');
+                document.getElementById('anios_exp').removeAttribute('required');
+            }
+        }
+
+        function toggleSkill(el) {
+            const skill = el.innerText;
+            if (selectedSkills.has(skill)) {
+                selectedSkills.delete(skill);
+                el.classList.remove('skill-selected');
+            } else {
+                if (selectedSkills.size >= MAX_SKILLS) {
+                    alert("Solo puedes seleccionar hasta 5 habilidades.");
+                    return;
+                }
+                selectedSkills.add(skill);
+                el.classList.add('skill-selected');
+            }
+        }
+
+        document.getElementById('onboardingForm').onsubmit = async (e) => {
+            e.preventDefault();
+
+            if (selectedSkills.size === 0) {
+                alert("Por favor selecciona al menos una habilidad.");
+                return;
+            }
+
+            const formData = {
+                nombre: document.getElementById('nombre').value,
+                edad: document.getElementById('edad').value,
+                telefono: document.getElementById('telefono').value,
+                residencia: document.getElementById('residencia').value,
+                estudios: document.getElementById('estudios').value,
+                estudia_hoy: document.querySelector('input[name="estudia_hoy"]:checked').value,
+                horario: document.getElementById('horario').value,
+                experiencia: document.getElementById('tiene_experiencia').value,
+                anios_exp: document.getElementById('anios_exp').value || 0,
+                modalidad: document.getElementById('modalidad').value,
+                jornada: document.getElementById('jornada').value,
+                habilidades: Array.from(selectedSkills)
+            };
+
+            console.log("Perfil validado y listo:", formData);
+            alert("¡Perfil completado con éxito! Redirigiendo...");
+            window.location.href = "/dashboard";
+        };
+    </script>
+</body>
+
+</html>
