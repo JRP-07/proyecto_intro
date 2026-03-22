@@ -22,9 +22,9 @@
         </div>
         <nav class="flex-1 px-4 mt-4 space-y-1">
             <a href="#" class="flex items-center px-4 py-3 bg-cyan-600 rounded-lg"><i class="fas fa-home mr-3"></i> Inicio</a>
-            <a href="#" class="flex items-center px-4 py-3 hover:bg-slate-800 rounded-lg text-slate-400"><i class="fas fa-plus-circle mr-3"></i> Nueva Vacante</a>
+            <a href="#" onclick="toggleModal('vacanteModal')" class="flex items-center px-4 py-3 hover:bg-slate-800 rounded-lg text-slate-400"><i class="fas fa-plus-circle mr-3"></i> Nueva Vacante</a>
             <a href="#" class="flex items-center px-4 py-3 hover:bg-slate-800 rounded-lg text-slate-400"><i class="fas fa-users mr-3"></i> Candidatos</a>
-            <a href="#" class="flex items-center px-4 py-3 hover:bg-slate-800 rounded-lg text-slate-400"><i class="fas fa-cog mr-3"></i> Configuración</a>
+            <a href="/api/logout" class="flex items-center px-4 py-3 hover:bg-red-900/20 rounded-lg text-red-400 mt-10"><i class="fas fa-sign-out-alt mr-3"></i> Salir</a>
         </nav>
     </aside>
 
@@ -33,9 +33,12 @@
         <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
             <h2 class="text-lg font-bold text-slate-800">Panel de Reclutamiento</h2>
             <div class="flex items-center space-x-4">
-                <span class="text-sm text-slate-500">{{ empresa.nombre_empresa }}</span>
-                <div class="w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center text-white">
-                    <i class="fas fa-building text-xs"></i>
+                <div class="text-right hidden sm:block">
+                    <p class="text-sm font-bold text-slate-700 leading-none">{{ empresa.nombre_empresa if empresa else 'Empresa' }}</p>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">RTN: {{ empresa.RTN if empresa else 'N/A' }}</p>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-cyan-500 flex items-center justify-center text-white shadow-lg shadow-cyan-200">
+                    <i class="fas fa-building text-sm"></i>
                 </div>
             </div>
         </header>
@@ -45,9 +48,9 @@
             <div class="flex justify-between items-center mb-8">
                 <div>
                     <h1 class="text-2xl font-bold text-slate-900">Tus Propuestas</h1>
-                    <p class="text-slate-500 text-sm">Gestiona tus vacantes activas y candidaturas.</p>
+                    <p class="text-slate-500 text-sm">Gestiona tus vacantes activas para el RTN {{ empresa.RTN if empresa else '' }}.</p>
                 </div>
-                <button onclick="toggleModal()" class="px-5 py-2.5 bg-cyan-600 text-white rounded-xl font-bold hover:bg-cyan-700 transition-all flex items-center">
+                <button onclick="toggleModal('vacanteModal')" class="px-5 py-2.5 bg-cyan-600 text-white rounded-xl font-bold hover:bg-cyan-700 transition-all flex items-center shadow-md">
                     <i class="fas fa-plus mr-2"></i> Crear Nueva Vacante
                 </button>
             </div>
@@ -56,29 +59,42 @@
             <div class="grid grid-cols-1 gap-4">
                 {% if vacantes %}
                     {% for v in vacantes %}
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between hover:border-cyan-300 transition-all">
+                    <!-- Corregido: Usamos una cadena simple de ID o atributos de datos para evitar errores de parseo JSON en el HTML -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between hover:border-cyan-300 transition-all group cursor-pointer" 
+                         data-vacante='{{ v|tojson|safe }}'
+                         onclick="verDetalleDesdeAttr(this)">
                         <div class="flex-1">
                             <div class="flex items-center space-x-3 mb-1">
-                                <h3 class="font-bold text-lg text-slate-800">{{ v.titulo }}</h3>
-                                <span class="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded uppercase">{{ v.estado }}</span>
+                                <h3 class="font-bold text-lg text-slate-800 group-hover:text-cyan-600 transition-colors">{{ v.titulo }}</h3>
+                                <span class="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded uppercase border border-green-200">{{ v.estado }}</span>
                             </div>
                             <div class="flex flex-wrap gap-4 text-sm text-slate-500">
-                                <span><i class="fas fa-layer-group mr-1"></i> {{ v.area }}</span>
-                                <span><i class="fas fa-map-marker-alt mr-1"></i> {{ v.ubicacion }}</span>
-                                <span><i class="fas fa-money-bill-wave mr-1"></i> {{ v.salario }}</span>
-                                <span><i class="fas fa-calendar-alt mr-1"></i> {{ v.fecha_publicacion }}</span>
+                                <span class="flex items-center"><i class="fas fa-layer-group mr-1.5 text-slate-400"></i> {{ v.area }}</span>
+                                <span class="flex items-center"><i class="fas fa-clock mr-1.5 text-slate-400"></i> {{ v.jornada }}</span>
+                                <span class="flex items-center"><i class="fas fa-money-bill-wave mr-1.5 text-slate-400"></i> {{ v.salario }}</span>
+                                <span class="flex items-center"><i class="fas fa-calendar-alt mr-1.5 text-slate-400"></i> {{ v.fecha_publicacion }}</span>
                             </div>
                         </div>
                         <div class="mt-4 md:mt-0 flex items-center space-x-2">
-                            <button class="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 text-sm font-medium">Ver Candidatos (0)</button>
-                            <button class="p-2 text-slate-400 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                            <button onclick="event.stopPropagation();" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 hover:border-slate-300 text-sm font-medium transition-all">
+                                Ver Candidatos
+                            </button>
+                            <button onclick="event.stopPropagation();" class="p-2 text-slate-300 hover:text-red-500 transition-colors">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </div>
                     {% endfor %}
                 {% else %}
-                    <div class="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-200">
-                        <i class="fas fa-folder-open text-4xl text-slate-300 mb-4"></i>
-                        <p class="text-slate-500">No has creado ninguna propuesta todavía.</p>
+                    <div class="text-center py-24 bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
+                        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-folder-open text-3xl text-slate-300"></i>
+                        </div>
+                        <h3 class="text-slate-800 font-bold">Sin vacantes activas</h3>
+                        <p class="text-slate-500 text-sm mt-1">Comienza publicando tu primera oferta laboral.</p>
+                        <button onclick="toggleModal('vacanteModal')" class="mt-6 px-6 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-700 transition-all">
+                            Publicar ahora
+                        </button>
                     </div>
                 {% endif %}
             </div>
@@ -86,32 +102,38 @@
     </main>
 
     <!-- Modal Crear Vacante -->
-    <div id="vacanteModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                <h3 class="text-xl font-bold text-slate-800">Nueva Propuesta Laboral</h3>
-                <button onclick="toggleModal()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+    <div id="vacanteModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800">Nueva Propuesta Laboral</h3>
+                    <p class="text-xs text-slate-400 mt-1 uppercase tracking-tighter font-bold">RTN Empresa: {{ empresa.RTN if empresa else '' }}</p>
+                </div>
+                <button onclick="toggleModal('vacanteModal')" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-200 text-slate-400 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <form id="formVacante" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+            
+            <form id="formVacante" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto">
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Título del Puesto</label>
-                    <input type="text" id="v_titulo" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="Ej: Desarrollador Backend Senior">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Título del Puesto</label>
+                    <input type="text" id="v_titulo" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500 outline-none transition-all" placeholder="Ej: Desarrollador Backend">
                 </div>
                 
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Área / Categoría</label>
-                    <select id="v_area" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 outline-none">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Área</label>
+                    <select id="v_area" class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none bg-white">
                         <option>Tecnología</option>
                         <option>Ventas</option>
                         <option>Administración</option>
-                        <option>Logística</option>
                         <option>Atención al Cliente</option>
+                        <option>Otros</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Modalidad</label>
-                    <select id="v_modalidad" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 outline-none">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Modalidad</label>
+                    <select id="v_modalidad" class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none bg-white">
                         <option>Presencial</option>
                         <option>Remoto</option>
                         <option>Híbrido</option>
@@ -119,38 +141,169 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Salario (Rango/Monto)</label>
-                    <input type="text" id="v_salario" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="Ej: L. 25,000 - 30,000">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Jornada</label>
+                    <select id="v_jornada" class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none bg-white">
+                        <option>Tiempo Completo</option>
+                        <option>Medio Tiempo</option>
+                        <option>Por Proyecto</option>
+                    </select>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Ubicación</label>
-                    <input type="text" id="v_ubicacion" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="Ciudad, País">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Horario</label>
+                    <select id="v_horario" class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none bg-white font-medium">
+                        <option value="Mañana">Mañana</option>
+                        <option value="Tarde">Tarde</option>
+                        <option value="Noche">Noche</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Salario Estimado</label>
+                    <input type="text" id="v_salario" class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none transition-all focus:border-cyan-500" placeholder="L. 15,000 - 20,000">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Ubicación</label>
+                    <input type="text" id="v_ubicacion" required class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none transition-all focus:border-cyan-500" placeholder="Ciudad, País">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">¿Requiere Experiencia?</label>
+                    <select id="v_experiencia" class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none bg-white font-medium">
+                        <option value="Sí">Sí, es requerida</option>
+                        <option value="No">No es necesaria</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Años Exp. Mínimos</label>
+                    <input type="number" id="v_c_experiencia" class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none transition-all focus:border-cyan-500" placeholder="0">
                 </div>
 
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Descripción del Puesto</label>
-                    <textarea id="v_descripcion" rows="3" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="¿Qué hará el candidato?"></textarea>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Descripción del Puesto</label>
+                    <textarea id="v_descripcion" rows="2" required class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none resize-none transition-all focus:border-cyan-500" placeholder="Breve descripción de las tareas..."></textarea>
                 </div>
 
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Requisitos / Habilidades</label>
-                    <textarea id="v_requisitos" rows="2" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="Ej: 3 años de experiencia, Inglés avanzado..."></textarea>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Requisitos Detallados</label>
+                    <textarea id="v_requisitos" rows="2" required class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none resize-none transition-all focus:border-cyan-500" placeholder="Conocimientos técnicos, habilidades blandas..."></textarea>
                 </div>
 
-                <div class="md:col-span-2 flex justify-end space-x-3 mt-4">
-                    <button type="button" onclick="toggleModal()" class="px-6 py-3 text-slate-500 font-bold">Cancelar</button>
-                    <button type="submit" class="px-8 py-3 bg-cyan-600 text-white font-bold rounded-xl hover:bg-cyan-700 transition-all">Publicar Propuesta</button>
+                <div class="md:col-span-2 flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="toggleModal('vacanteModal')" class="px-6 py-3 text-slate-400 font-bold hover:text-slate-600 transition-colors">Cancelar</button>
+                    <button type="submit" class="px-8 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-cyan-600 transition-all shadow-lg shadow-slate-200">
+                        Publicar Vacante
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- Modal Detalle Vacante -->
+    <div id="detalleModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-cyan-600 text-white">
+                <div>
+                    <h3 id="det_titulo" class="text-xl font-bold">Detalles de la Vacante</h3>
+                    <p id="det_area_tag" class="text-xs opacity-80 uppercase font-bold tracking-widest mt-1"></p>
+                </div>
+                <button onclick="toggleModal('detalleModal')" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="p-8 overflow-y-auto space-y-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                        <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Modalidad</p>
+                        <p id="det_modalidad" class="text-sm font-bold text-slate-700"></p>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                        <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Horario</p>
+                        <p id="det_horario" class="text-sm font-bold text-slate-700"></p>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                        <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Jornada</p>
+                        <p id="det_jornada" class="text-sm font-bold text-slate-700"></p>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                        <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Salario</p>
+                        <p id="det_salario" class="text-sm font-bold text-slate-700"></p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <section>
+                        <h4 class="text-xs font-bold text-cyan-600 uppercase flex items-center">
+                            <i class="fas fa-info-circle mr-2"></i> Descripción
+                        </h4>
+                        <p id="det_descripcion" class="text-slate-600 text-sm mt-2 leading-relaxed whitespace-pre-line"></p>
+                    </section>
+
+                    <section>
+                        <h4 class="text-xs font-bold text-cyan-600 uppercase flex items-center">
+                            <i class="fas fa-list-check mr-2"></i> Requisitos
+                        </h4>
+                        <p id="det_requisitos" class="text-slate-600 text-sm mt-2 leading-relaxed whitespace-pre-line"></p>
+                    </section>
+
+                    <section class="flex items-center space-x-4 pt-4 border-t border-slate-100">
+                        <div class="flex-1">
+                            <h4 class="text-[10px] font-bold text-slate-400 uppercase">Experiencia Requerida</h4>
+                            <p id="det_experiencia" class="text-sm font-bold text-slate-700 mt-1"></p>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-[10px] font-bold text-slate-400 uppercase">Ubicación</h4>
+                            <p id="det_ubicacion" class="text-sm font-bold text-slate-700 mt-1"></p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+                <button onclick="toggleModal('detalleModal')" class="px-6 py-2 bg-slate-800 text-white rounded-lg text-sm font-bold hover:bg-slate-700 transition-all">
+                    Cerrar Detalle
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function toggleModal() {
-            const modal = document.getElementById('vacanteModal');
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
             modal.classList.toggle('hidden');
             modal.classList.toggle('modal-active');
+        }
+
+        // Nueva función corregida para evitar errores de parseo
+        function verDetalleDesdeAttr(element) {
+            try {
+                const rawData = element.getAttribute('data-vacante');
+                const v = JSON.parse(rawData);
+                
+                document.getElementById('det_titulo').innerText = v.titulo || 'Sin título';
+                document.getElementById('det_area_tag').innerText = v.area || 'N/A';
+                document.getElementById('det_modalidad').innerText = v.modalidad || 'N/A';
+                document.getElementById('det_horario').innerText = v.horario || 'N/A';
+                document.getElementById('det_jornada').innerText = v.jornada || 'N/A';
+                document.getElementById('det_salario').innerText = v.salario || 'No especificado';
+                document.getElementById('det_ubicacion').innerText = v.ubicacion || 'N/A';
+                
+                const expTexto = v.experiencia === 'Sí' ? `Mínimo ${v.c_experiencia} año(s)` : 'No necesaria';
+                document.getElementById('det_experiencia').innerText = expTexto;
+                
+                document.getElementById('det_descripcion').innerText = v.descripcion || 'Sin descripción disponible.';
+                document.getElementById('det_requisitos').innerText = v.requisitos || 'Sin requisitos específicos.';
+
+                toggleModal('detalleModal');
+            } catch (e) {
+                console.error("Error al procesar los detalles de la vacante:", e);
+                // Fallback amigable
+                alert("Hubo un error al cargar la información detallada.");
+            }
         }
 
         document.getElementById('formVacante').addEventListener('submit', async (e) => {
@@ -160,8 +313,12 @@
                 titulo: document.getElementById('v_titulo').value,
                 area: document.getElementById('v_area').value,
                 modalidad: document.getElementById('v_modalidad').value,
+                jornada: document.getElementById('v_jornada').value,
+                horario: document.getElementById('v_horario').value,
                 salario: document.getElementById('v_salario').value,
                 ubicacion: document.getElementById('v_ubicacion').value,
+                experiencia: document.getElementById('v_experiencia').value,
+                c_experiencia: parseInt(document.getElementById('v_c_experiencia').value || 0),
                 descripcion: document.getElementById('v_descripcion').value,
                 requisitos: document.getElementById('v_requisitos').value
             };
@@ -177,10 +334,11 @@
                     alert("¡Propuesta publicada con éxito!");
                     location.reload();
                 } else {
-                    alert("Hubo un error al publicar.");
+                    const err = await response.json();
+                    alert("Error: " + (err.message || "No se pudo publicar"));
                 }
             } catch (err) {
-                alert("Error de conexión.");
+                alert("Error de conexión con el servidor.");
             }
         });
     </script>

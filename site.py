@@ -161,12 +161,16 @@ def dashboard_e():
     cursor.execute('SELECT * FROM perfiles_empresas WHERE RTN = ?', (identidad,))
     empresa = cursor.fetchone()
     
+    empresa_dict=dict(empresa) if empresa else {}
+    
     # Sus vacantes publicadas
     cursor.execute('SELECT * FROM vacantes WHERE empresa_id = ? ORDER BY id DESC', (identidad,))
     vacantes = cursor.fetchall()
     
+    vacantes_dict=[dict(v) for v in vacantes]
+    
     conn.close()
-    return render_template('dashboard_e.html', empresa=empresa, vacantes=vacantes)
+    return render_template('dashboard_e.html', empresa=empresa_dict, vacantes=vacantes_dict)
 
 #Panel de administrador de usuarios
 @app.route('/admin/usuarios')
