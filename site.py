@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import sqlite3
 import os
@@ -66,6 +68,42 @@ def init_db():
             FOREIGN KEY (identidad) REFERENCES usuarios (identidad)
         )
     ''')
+    
+    #Tabla de Perfiles Empresas
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS perfiles_empresas (
+            RTN TEXT PRIMARY KEY,
+            nombre_empresa TEXT,
+            descripcion TEXT,
+            direccion TEXT,
+            contacto_RRHH TEXT,
+            telefono_empresa TEXT,
+            FOREIGN KEY (RTN) REFERENCES usuarios (identidad)
+        )
+    ''')
+    
+    #Tabla de Vacantes
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS vacantes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            empresa_id TEXT,
+            titulo TEXT,
+            area TEXT,
+            modalidad TEXT,
+            jornada TEXT,
+            horario TEXT,
+            salario TEXT,
+            experiencia TEXT,
+            c_experiencia INTEGER,
+            ubicacion TEXT,
+            descripcion TEXT,
+            requisitos TEXT,
+            fecha_publicacion TEXT,
+            estado TEXT DEFAULT 'activa',
+            FOREIGN KEY (empresa_id) REFERENCES usuarios (identidad)
+        )
+    ''')
+    
     conn.commit()
     conn.close()
 
@@ -89,15 +127,48 @@ def register_page():
 
 @app.route('/crear-perfil')
 def complete_profile_page():
+    if 'user_id' not in session:
+        return redirect(url_for('login_page'))
     """Ruta para completar los datos."""
-    # Eliminada la redirección obligatoria por sesión para evitar bloqueos
     return render_template('c_perfil_aspirante.html')
 
-@app.route('/dashboard')
+@app.route('/crear-perfil-empresa')
+def complete_profile_b_page():
+    if 'user_id' not in session:
+        return redirect(url_for('login_page'))
+    """Ruta para completar los datos."""
+    return render_template('c_perfil_empresa.html')
+    
+#Dashboard de aspirantes    
+@app.route('/dashboard-aspirantes')
 def dashboard():
     """Panel principal del usuario."""
-    return render_template('dashboard.html')
+    return render_template('dashboard_a.html')
 
+#Dashboard de empresas
+@app.route('/dashboard-empresas')
+def dashboard_e():
+    """Panel principal del usuario."""
+    if 'user_id' not in session:
+        return redirect(url_for('login_page'))
+    
+    identidad = session['user_id']
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    # Datos de la empresa
+    cursor.execute('SELECT * FROM perfiles_empresas WHERE RTN = ?', (identidad,))
+    empresa = cursor.fetchone()
+    
+    # Sus vacantes publicadas
+    cursor.execute('SELECT * FROM vacantes WHERE empresa_id = ? ORDER BY id DESC', (identidad,))
+    vacantes = cursor.fetchall()
+    
+    conn.close()
+    return render_template('dashboard_e.html', empresa=empresa, vacantes=vacantes)
+
+#Panel de administrador de usuarios
 @app.route('/admin/usuarios')
 def ver_usuarios():
     """Ruta administrativa para visualizar los datos guardados sin visores externos."""
@@ -174,7 +245,7 @@ def ver_usuarios():
         return f"Error al consultar la base de datos: {str(e)}"
 
 # --- API DE REGISTRO Y AUTENTICACIÓN ---
-
+#codigo para registrarse como usuario
 @app.route('/api/auth/register', methods=['POST'])
 def register():
     """Crea un usuario desde cero en la base de datos."""
@@ -212,15 +283,20 @@ def register():
         # Establecer la sesión para el nuevo usuario recién creado
         session['user_id'] = identidad
         
+        if tipo =='aspirante':
+            url_d="/crear-perfil"
+        else:
+            url_d="/crear-perfil-empresa"
         return jsonify({
             "status": "success",
             "message": "Usuario registrado correctamente",
-            "redirect_url": "/crear-perfil"
+            "redirect_url": url_d
         }), 200
 
     except Exception as e:
         return jsonify({"message": f"Error interno al procesar el registro: {str(e)}"}), 500
 
+#Ingreso a la pagina
 @app.route('/api/auth/login', methods=['POST'])
 def login():
     """Verifica credenciales para usuarios existentes."""
@@ -238,13 +314,15 @@ def login():
         if user and user[0] == password:
             session['user_id'] = identidad
             # Redirigir según el estado del perfil
-            target = "/dashboard" if user[1] == 1 else "/crear-perfil"
+            target = "/dashboard-aspirantes" if user[1] == 1 else "/crear-perfil"
             return jsonify({"redirect_url": target}), 200
         
         return jsonify({"message": "Credenciales incorrectas"}), 401
     except Exception as e:
         return jsonify({"message": str(e)}), 500
 
+
+#Codigo para completar el perfil del aspirante
 @app.route('/api/complete-profile', methods=['POST'])
 def complete_profile():
     """Asocia datos profesionales a la identidad del usuario."""
@@ -301,11 +379,86 @@ def complete_profile():
         conn.commit()
         conn.close()
 
-        return jsonify({"status": "success", "redirect_url": "/dashboard"}), 200
+        return jsonify({"status": "success", "redirect_url": "/dashboard-aspirantes"}), 200
 
     except Exception as e:
         # Error genérico para no romper el flujo
         return jsonify({"status": "error", "message": str(e)}), 200
+    
+    
+#Codigo para completar el perfil de la empresa
+@app.route('/api/complete-company-profile', methods=['POST'])
+def complete_company_profile():
+    try:
+        identidad = session.get('user_id') or request.form.get('identidad')
+        
+        if not identidad:
+            return jsonify({"status": "error", "message": "Sesión no válida"}), 401
+
+        #filename = None
+        # if 'logo' in request.files:
+        #     file = request.files['logo']
+        #     if file and file.filename != '' and allowed_file(file.filename):
+        #         ext = file.filename.rsplit('.', 1)[1].lower()
+        #         filename = secure_filename(f"logo_{identidad}.{ext}")
+        #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            INSERT OR REPLACE INTO perfiles_empresas (
+                RTN, nombre_empresa, 
+                descripcion, direccion, contacto_RRHH, telefono_empresa
+            ) VALUES (?, ?, ?, ?, ?, ?)
+        ''', (
+            identidad,
+            request.form.get('nombre_empresa'),
+            request.form.get('descripcion'),
+            request.form.get('direccion'),
+            request.form.get('contacto_RRHH'),
+            request.form.get('telefono_empresa')
+        ))
+        
+        cursor.execute('UPDATE usuarios SET perfil_completo = 1 WHERE identidad = ?', (identidad,))
+        
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            "status": "success", 
+            "redirect_url": "/dashboard-empresas"
+        }), 200
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+    
+@app.route('/api/vacantes/crear', methods=['POST'])
+def crear_vacante():
+    if 'user_id' not in session:
+        return jsonify({"message": "No autorizado"}), 401
+    
+    try:
+        data = request.get_json()
+        identidad = session['user_id']
+        fecha = datetime.now().strftime("%d/%m/%Y")
+        
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO vacantes (empresa_id, titulo, area, modalidad, jornada, horario, salario, experiencia, c_experiencia, ubicacion, descripcion, requisitos, fecha_publicacion)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (identidad, data['titulo'], data['area'], data['modalidad'], data['jornada'], data['horario'], 
+              data['salario'], data['experiencia'], data['c_experiencia'], data['ubicacion'], data['descripcion'],
+              data['requisitos'], fecha))
+        
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "success", "message": "Propuesta publicada"}), 200
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
+
 
 @app.route('/api/logout')
 def logout():

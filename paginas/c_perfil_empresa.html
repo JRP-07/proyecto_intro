@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalentFlow - Perfil Corporativo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(8, 145, 178, 0.3);
+        }
+
+        .input-style {
+            @apply w-full pl-12 pr-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-cyan-500 focus:bg-white transition-all;
+        }
+
+        .icon-label {
+            @apply absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-cyan-600 transition-colors;
+        }
+    </style>
+</head>
+
+<body
+    class="min-h-screen flex items-center justify-center p-6 bg-[radial-gradient(circle_at_90%_10%,_rgba(6,182,212,0.15)_0%,_transparent_50%)]">
+
+    <div class="w-full max-w-3xl">
+        <div class="glass-card p-8 md:p-12 rounded-[2.5rem] shadow-2xl">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Perfil de Empresa</h1>
+                    <p class="text-slate-500">Configura tu marca empleadora para atraer talento</p>
+                </div>
+                <div class="w-16 h-16 bg-cyan-100 rounded-2xl flex items-center justify-center text-cyan-600">
+                    <i class="fas fa-building text-3xl"></i>
+                </div>
+            </div>
+
+            <form id="companyProfileForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Identidad (Oculto o Solo Lectura) -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">RTN / Identidad Corporativa</label>
+                    <div class="relative group">
+                        <span class="icon-label"><i class="fas fa-id-card"></i></span>
+                        <input type="text" name="identidad"id="identidad" required
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                            placeholder="RNT o Identificador de Empresa" readonly="true">
+                    </div>
+                </div>
+
+                <!-- Nombre Empresa -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Nombre de la Empresa</label>
+                    <div class="relative group">
+                        <!-- <span class="icon-label"><i class="fas fa-briefcase"></i></span> -->
+                        <input type="text" name="nombre_empresa" required
+                                class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="Ej: Atlas Electronics S.A.">
+                    </div>
+                </div>
+                <div>
+                    <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Ubicacion de la empresa</label>
+                            <input type="text" name="direccion" required
+                                class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="San Pedro Sula, HN">
+                        </div>
+                </div>
+
+                <!-- Sector
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Sector Industrial</label>
+                    <div class="relative group">
+                        <span class="icon-label"><i class="fas fa-industry"></i></span>
+                        <select name="sector" required class="input-style appearance-none">
+                            <option value="">Seleccionar Sector</option>
+                            <option value="tecnologia">Tecnología / IT</option>
+                            <option value="finanzas">Finanzas / Banca</option>
+                            <option value="salud">Salud / Medicina</option>
+                            <option value="educacion">Educación</option>
+                            <option value="manufactura">Manufactura</option>
+                        </select>
+                    </div>
+                </div> -->
+
+                <!-- Web Site
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Sitio Web</label>
+                    <div class="relative group">
+                        <span class="icon-label"><i class="fas fa-globe"></i></span>
+                        <input type="url" name="sitio_web" placeholder="https://..." class="input-style">
+                    </div>
+                </div> -->
+
+                <!-- Telefono RRHH -->                    
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Teléfono De Recursos Humanos</label>
+                    <div class="relative group">
+                        <span class="icon-label"><i class="fas fa-phone"></i></span>
+                        <input type="tel" name="contacto_RRHH" required
+                                class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="+504 9999-9999">
+                    </div>
+                </div>
+
+                <!-- Telefono -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Teléfono Corporativo</label>
+                    <div class="relative group">
+                        <span class="icon-label"><i class="fas fa-phone"></i></span>
+                        <input type="tel" name="telefono_empresa" required
+                                class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="+504 9999-9999">
+                    </div>
+                </div>
+
+                <!-- Logo
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Logo de la Empresa (PNG/JPG)</label>
+                    <div class="flex items-center justify-center w-full">
+                        <label
+                            class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-200 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <i class="fas fa-cloud-upload-alt text-2xl text-cyan-500 mb-2"></i>
+                                <p class="text-sm text-slate-500">Haz clic para subir logo</p>
+                            </div>
+                            <input type="file" name="logo" class="hidden" accept="image/*" />
+                        </label>
+                    </div>
+                </div> -->
+
+                <!-- Descripcion -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Descripción de la Empresa</label>
+                    <textarea name="descripcion" rows="3" required
+                        class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none focus:border-cyan-500 focus:bg-white transition-all"
+                        placeholder="Cuenta un poco sobre la visión y cultura de tu empresa..."></textarea>
+                </div>
+
+                <button type="submit" id="submitBtn"
+                    class="md:col-span-2 py-4 bg-cyan-600 text-white font-bold rounded-xl hover:bg-cyan-700 transition-all shadow-lg shadow-cyan-900/20 active:scale-95 flex items-center justify-center space-x-2">
+                    <span id="btnText">Finalizar Perfil Corporativo</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Recuperar identidad de localStorage (pasada desde el registro)
+        window.onload = function () {
+            const identidadGuardada = localStorage.getItem('temp_identidad');
+            if (identidadGuardada) {
+                document.getElementById('identidad').value = identidadGuardada;
+            }
+        };
+
+        document.getElementById('companyProfileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const formData = new FormData(e.target);
+
+            btnText.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Procesando...';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/complete-company-profile', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert("¡Perfil de empresa creado exitosamente!");
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch (err) {
+                alert("Error de conexión");
+            } finally {
+                btnText.innerText = "Finalizar Perfil Corporativo";
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>
