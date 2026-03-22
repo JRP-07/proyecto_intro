@@ -1,5 +1,322 @@
 <!DOCTYPE html>
 <html lang="es">
-                    <a href="/crear-perfil" class="nav-link text-slate-600 font-medium">Inicio de Sesion</a>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalentFlow - Registro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
 
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bg-user { background-color: #f8fafc; }
+        .bg-enterprise { background-color: #0f172a; }
+
+        .glow-user {
+            background: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.1) 0%, transparent 40%);
+        }
+        .glow-enterprise {
+            background: radial-gradient(circle at 90% 10%, rgba(6, 182, 212, 0.2) 0%, transparent 50%);
+        }
+
+        .type-selector {
+            display: flex;
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 9999px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .type-option {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: #64748b;
+            z-index: 10;
+            transition: color 0.4s ease;
+        }
+
+        .type-active-bg {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: calc(50% - 4px);
+            height: calc(100% - 8px);
+            background: white;
+            border-radius: 9999px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .is-enterprise .type-active-bg { transform: translateX(100%); }
+        .is-enterprise .type-option.active { color: #0891b2; }
+        .active { color: #4f46e5; }
+
+        .icon-container {
+            width: 85px;
+            height: 85px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.6s ease;
+        }
+
+        .is-enterprise-theme .icon-container {
+            background: #1e293b;
+            color: #22d3ee;
+            transform: rotateY(180deg);
+        }
+
+        .is-user-theme .icon-container {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        .is-enterprise-theme .glass-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-color: #0891b2;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        #errorMessage {
+            display: none;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body id="mainBody" class="bg-user min-h-screen flex items-center justify-center p-6">
+    <div id="glowEffect" class="fixed inset-0 glow-user pointer-events-none"></div>
+
+    <div class="w-full max-w-lg z-10">
+        <!-- Logo -->
+        <div class="flex items-center justify-center space-x-3 mb-10 cursor-pointer group" onclick="window.location.href='/'">
+            <div id="logoBox" class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-xl transition-all duration-500 group-hover:scale-110">
+                <i class="fas fa-rocket text-white text-2xl"></i>
+            </div>
+            <span id="logoText" class="text-3xl font-bold tracking-tight text-slate-800 transition-colors">
+                Talent<span id="logoSub" class="text-indigo-600">Flow</span>
+            </span>
+        </div>
+
+        <div id="registerCard" class="glass-card p-10 md:p-12 rounded-[3.5rem] shadow-2xl is-user-theme">
+            <div id="visualIcon" class="icon-container shadow-inner">
+                <i id="mainIcon" class="fas fa-user-astronaut text-4xl"></i>
+            </div>
+
+            <h1 id="mainTitle" class="text-3xl font-bold text-slate-900 mb-2 text-center tracking-tight">Registro de Talento</h1>
+            <p id="mainDesc" class="text-slate-500 text-center mb-8">Crea tu cuenta para postularte</p>
+
+            <div id="errorMessage" class="mb-8 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded-r-2xl">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle mr-3"></i>
+                    <div>
+                        <p class="font-bold">Error al registrar</p>
+                        <p id="errorText">Los datos ingresados no son válidos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="selectorContainer" class="type-selector mb-10 mx-auto max-w-[300px] border border-slate-200">
+                <div id="optionUser" class="type-option active" onclick="updateTheme('aspirante')">Talento</div>
+                <div id="optionBusiness" class="type-option" onclick="updateTheme('empresa')">Empresa</div>
+                <div class="type-active-bg"></div>
+            </div>
+
+            <form id="registerForm" class="space-y-6">
+                <!-- El valor del tipo se maneja dinámicamente -->
+                <input type="hidden" id="tipo_usuario" value="aspirante">
+
+                <div>
+                    <label id="labelId" class="block text-sm font-bold text-slate-700 mb-2 ml-2">Número de Identidad</label>
+                    <div class="relative group">
+                        <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                            <i id="iconId" class="fas fa-id-card"></i>
+                        </span>
+                        <input type="text" id="identidad" name="identidad" required 
+                               class="w-full pl-14 pr-6 py-4 bg-white/50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white transition-all shadow-sm placeholder:text-slate-300" 
+                               placeholder="0000-0000-00000">
+                    </div>
+                </div>
+
+                <div>
+                    <label id="labelName" class="block text-sm font-bold text-slate-700 mb-2 ml-2">Nombre Completo</label>
+                    <div class="relative group">
+                        <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                            <i id="iconUser" class="fas fa-user"></i>
+                        </span>
+                        <input type="text" id="nombre" name="nombre" required 
+                               class="w-full pl-14 pr-6 py-4 bg-white/50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white transition-all shadow-sm placeholder:text-slate-300" 
+                               placeholder="Ej: Juan Pérez">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-sm font-bold text-slate-700 mb-2 ml-2 block">Contraseña</label>
+                    <div class="relative group">
+                        <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                            <i class="fas fa-key"></i>
+                        </span>
+                        <input type="password" id="password" name="password" required 
+                               class="w-full pl-14 pr-6 py-4 bg-white/50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white transition-all shadow-sm placeholder:text-slate-300" 
+                               placeholder="••••••••">
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="w-full py-5 bg-indigo-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200 active:scale-[0.98] mt-4 flex items-center justify-center">
+                    <span id="btnText">Crear Cuenta</span>
+                </button>
+            </form>
+
+            <div class="mt-10 text-center">
+                <p class="text-slate-400 text-sm font-medium">
+                    ¿Ya tienes una cuenta? 
+                    <a href="/login" id="linkAction" class="text-indigo-600 font-extrabold hover:underline">Inicia Sesión</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateTheme(type) {
+            const body = document.getElementById('mainBody');
+            const glow = document.getElementById('glowEffect');
+            const card = document.getElementById('registerCard');
+            const selector = document.getElementById('selectorContainer');
+            const optUser = document.getElementById('optionUser');
+            const optBusiness = document.getElementById('optionBusiness');
+            const typeInput = document.getElementById('tipo_usuario');
+            
+            const title = document.getElementById('mainTitle');
+            const desc = document.getElementById('mainDesc');
+            const icon = document.getElementById('mainIcon');
+            const labelId = document.getElementById('labelId');
+            const labelName = document.getElementById('labelName');
+            const inputName = document.getElementById('nombre');
+            const inputId = document.getElementById('identidad');
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const logoBox = document.getElementById('logoBox');
+            const logoText = document.getElementById('logoText');
+            const logoSub = document.getElementById('logoSub');
+            const linkAction = document.getElementById('linkAction');
+            const errorBox = document.getElementById('errorMessage');
+
+            errorBox.style.display = 'none';
+            typeInput.value = type;
+
+            if (type === 'empresa') {
+                body.className = 'bg-enterprise min-h-screen flex items-center justify-center p-6';
+                glow.className = 'fixed inset-0 glow-enterprise pointer-events-none';
+                selector.classList.add('is-enterprise');
+                card.classList.replace('is-user-theme', 'is-enterprise-theme');
+                optBusiness.classList.add('active');
+                optUser.classList.remove('active');
+
+                title.innerText = 'Registro Corporativo';
+                desc.innerText = 'Empieza a reclutar al mejor talento';
+                icon.className = 'fas fa-building text-4xl';
+                labelId.innerText = 'RTN de Empresa';
+                labelName.innerText = 'Nombre de la Empresa';
+                inputName.placeholder = 'Ej: Inversiones S.A.';
+                inputId.placeholder = '0000-0000-00000-0';
+                
+                submitBtn.className = 'w-full py-5 bg-cyan-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-cyan-700 transition-all shadow-xl shadow-cyan-900/40 active:scale-[0.98] mt-4 flex items-center justify-center';
+                logoBox.className = 'w-12 h-12 bg-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/20 transition-all duration-500 group-hover:scale-110';
+                logoText.classList.replace('text-slate-800', 'text-white');
+                logoSub.className = 'text-cyan-400';
+                linkAction.className = 'text-cyan-500 font-extrabold hover:underline';
+            } else {
+                body.className = 'bg-user min-h-screen flex items-center justify-center p-6';
+                glow.className = 'fixed inset-0 glow-user pointer-events-none';
+                selector.classList.remove('is-enterprise');
+                card.classList.replace('is-enterprise-theme', 'is-user-theme');
+                optUser.classList.add('active');
+                optBusiness.classList.remove('active');
+
+                title.innerText = 'Registro de Talento';
+                desc.innerText = 'Crea tu cuenta para postularte';
+                icon.className = 'fas fa-user-astronaut text-4xl';
+                labelId.innerText = 'Número de Identidad';
+                labelName.innerText = 'Nombre Completo';
+                inputName.placeholder = 'Ej: Juan Pérez';
+                inputId.placeholder = '0000-0000-00000';
+
+                submitBtn.className = 'w-full py-5 bg-indigo-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-[0.98] mt-4 flex items-center justify-center';
+                logoBox.className = 'w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-xl transition-all duration-500 group-hover:scale-110';
+                logoText.classList.replace('text-white', 'text-slate-800');
+                logoSub.className = 'text-indigo-600';
+                linkAction.className = 'text-indigo-600 font-extrabold hover:underline';
+            }
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const identidad = document.getElementById('identidad').value;
+            const nombre = document.getElementById('nombre').value;
+            const password = document.getElementById('password').value;
+            const tipo = document.getElementById('tipo_usuario').value;
+            
+            const errorBox = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+
+            const originalText = btnText.innerText;
+            btnText.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Creando cuenta...';
+            submitBtn.disabled = true;
+            errorBox.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identidad, nombre, password, tipo })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // PASO CLAVE: Guardamos la identidad en localStorage antes de irnos
+                    localStorage.setItem('temp_identidad', identidad);
+                    localStorage.setItem('temp_nombre', nombre);
+                    
+                    window.location.href = data.redirect_url;
+                } else {
+                    errorBox.style.display = 'block';
+                    errorText.innerText = data.message || "Error al registrarse.";
+                }
+            } catch (err) {
+                errorBox.style.display = 'block';
+                errorText.innerText = "Error de conexión con el servidor.";
+            } finally {
+                btnText.innerText = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
 </html>

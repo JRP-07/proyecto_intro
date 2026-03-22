@@ -55,8 +55,8 @@ def init_db():
             telefono TEXT,
             residencia TEXT,
             estudios TEXT,
-            archivo_adjunto TEXT,
             estudia TEXT,
+            archivo_adjunto TEXT,
             horario TEXT,
             experiencia TEXT,
             anios_exp INTEGER,
@@ -273,8 +273,8 @@ def complete_profile():
         # Insertar datos extendidos en la tabla de perfiles
         cursor.execute('''
             INSERT OR REPLACE INTO perfiles (
-                identidad, email, edad, telefono, residencia, estudios, 
-                archivo_adjunto, estudia, horario, experiencia, anios_exp, 
+                identidad, email, edad, telefono, residencia, estudios, estudia,
+                archivo_adjunto, horario, experiencia, anios_exp, 
                 modalidad, jornada, habilidades
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
@@ -286,7 +286,7 @@ def complete_profile():
             request.form.get('estudios'),
             request.form.get('estudia'),
             filename,
-            request.form.get('estudia'),
+            # request.form.get('estudia'),
             request.form.get('horario'),
             request.form.get('experiencia'),
             int(request.form.get('anios_exp', 0)),
