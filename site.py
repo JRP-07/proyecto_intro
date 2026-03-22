@@ -56,9 +56,12 @@ def init_db():
             residencia TEXT,
             estudios TEXT,
             archivo_adjunto TEXT,
+            estudia TEXT,
             horario TEXT,
             experiencia TEXT,
             anios_exp INTEGER,
+            modalidad TEXT, 
+            jornada TEXT,
             habilidades TEXT,
             FOREIGN KEY (identidad) REFERENCES usuarios (identidad)
         )
@@ -271,8 +274,9 @@ def complete_profile():
         cursor.execute('''
             INSERT OR REPLACE INTO perfiles (
                 identidad, email, edad, telefono, residencia, estudios, 
-                archivo_adjunto, horario, experiencia, anios_exp, habilidades
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                archivo_adjunto, estudia, horario, experiencia, anios_exp, 
+                modalidad, jornada, habilidades
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             identidad,
             request.form.get('email'),
@@ -280,10 +284,14 @@ def complete_profile():
             request.form.get('telefono'),
             request.form.get('residencia'),
             request.form.get('estudios'),
+            request.form.get('estudia'),
             filename,
+            request.form.get('estudia'),
             request.form.get('horario'),
             request.form.get('experiencia'),
             int(request.form.get('anios_exp', 0)),
+            request.form.get('modalidad'),
+            request.form.get('jornada'),
             request.form.get('habilidades')
         ))
         

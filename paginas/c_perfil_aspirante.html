@@ -10,20 +10,32 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-        body { font-family: 'Inter', sans-serif; }
-        .step-circle { transition: all 0.4s ease; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .step-circle {
+            transition: all 0.4s ease;
+        }
+
         .step-active {
             background-color: #ffffff;
             color: #4f46e5;
             transform: scale(1.1);
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
         }
-        .skill-tag { transition: all 0.2s ease; cursor: pointer; }
+
+        .skill-tag {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
         .skill-selected {
             background-color: #4f46e5;
             color: white;
             border-color: #4f46e5;
         }
+
         .loader {
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-top: 2px solid #ffffff;
@@ -34,11 +46,31 @@
             display: inline-block;
             margin-right: 10px;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -53,9 +85,15 @@
 
             <div class="flex justify-between mt-8 relative">
                 <div class="absolute top-1/2 left-0 w-full h-0.5 bg-indigo-400 -z-0 -translate-y-1/2"></div>
-                <div id="step-1-dot" class="step-circle w-10 h-10 rounded-full bg-indigo-700 flex items-center justify-center font-bold z-10 step-active">1</div>
-                <div id="step-2-dot" class="step-circle w-10 h-10 rounded-full bg-indigo-700 flex items-center justify-center font-bold z-10">2</div>
-                <div id="step-3-dot" class="step-circle w-10 h-10 rounded-full bg-indigo-700 flex items-center justify-center font-bold z-10">3</div>
+                <div id="step-1-dot"
+                    class="step-circle w-10 h-10 rounded-full bg-indigo-700 flex items-center justify-center font-bold z-10 step-active">
+                    1</div>
+                <div id="step-2-dot"
+                    class="step-circle w-10 h-10 rounded-full bg-indigo-700 flex items-center justify-center font-bold z-10">
+                    2</div>
+                <div id="step-3-dot"
+                    class="step-circle w-10 h-10 rounded-full bg-indigo-700 flex items-center justify-center font-bold z-10">
+                    3</div>
             </div>
         </div>
 
@@ -65,37 +103,60 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-1">Identidad</label>
-                        <input type="text" id="identidad" required class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Número de Identidad">
+                        <input type="text" id="identidad" required
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                            placeholder="Número de Identidad">
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-1">Nombre Completo</label>
-                            <input type="text" id="nombre" required class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ej: Juan Pérez">
+                            <input type="text" id="nombre" required
+                                class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="Ej: Juan Pérez">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-1">Fecha de Nacimiento</label>
-                            <input type="date" id="fecha_nacimiento" required class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <input type="date" id="fecha_nacimiento" required
+                                class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                                min="1997-01-01" max="2008-12-31">
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-1">Correo Electrónico</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fas fa-envelope"></i></span>
-                            <input type="email" id="email" required class="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50" placeholder="tu@correo.com">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i
+                                    class="fas fa-envelope"></i></span>
+                            <input type="email" id="email" required
+                                class="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50"
+                                placeholder="tu@correo.com">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Contraseña</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i
+                                    class="fas fa-lock"></i></span>
+                            <input type="password" id="password" required
+                                class="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-1">Teléfono</label>
-                            <input type="tel" id="telefono" required class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="+504 9999-9999">
+                            <input type="tel" id="telefono" required
+                                class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="+504 9999-9999">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-1">Ciudad de Residencia</label>
-                            <input type="text" id="residencia" required class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="San Pedro Sula, HN">
+                            <input type="text" id="residencia" required
+                                class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="San Pedro Sula, HN">
                         </div>
                     </div>
                 </div>
-                <button type="button" onclick="nextStep(2)" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">Continuar</button>
+                <button type="button" onclick="nextStep(2)"
+                    class="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">Continuar</button>
             </div>
 
             <!-- PASO 2 -->
@@ -113,12 +174,15 @@
                         <option value="doctorado">Doctorado Completo</option>
                     </select>
                 </div>
-                
+
                 <!-- CAMPO DE ARCHIVO (Comprobante) -->
                 <div id="file-uploader" class="hidden">
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Comprobante de estudios o CV (PDF/Imagen)</label>
-                    <div class="relative border-2 border-dashed border-slate-200 rounded-xl p-4 hover:border-indigo-400 transition-colors">
-                        <input type="file" id="archivo_adjunto" accept=".pdf,.jpg,.jpeg,.png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Comprobante de estudios o CV
+                        (PDF/Imagen)</label>
+                    <div
+                        class="relative border-2 border-dashed border-slate-200 rounded-xl p-4 hover:border-indigo-400 transition-colors">
+                        <input type="file" id="archivo_adjunto" accept=".pdf,.jpg,.jpeg,.png"
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                         <div class="text-center">
                             <i class="fas fa-cloud-upload-alt text-slate-400 text-2xl mb-2"></i>
                             <p class="text-xs text-slate-500" id="file-name">Haz clic o arrastra un archivo aquí</p>
@@ -127,17 +191,39 @@
                 </div>
 
                 <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">¿Estudias actualmente?</label>
+                    <div class="flex space-x-4">
+                        <label
+                            class="flex-1 border border-slate-200 p-3 rounded-xl cursor-pointer hover:bg-slate-50 text-center">
+                            <input type="radio" name="estudia_hoy" value="si" class="hidden peer">
+                            <span class="peer-checked:text-indigo-600 peer-checked:font-bold">Sí</span>
+                        </label>
+                        <label
+                            class="flex-1 border border-slate-200 p-3 rounded-xl cursor-pointer hover:bg-slate-50 text-center">
+                            <input type="radio" name="estudia_hoy" value="no" class="hidden peer" checked>
+                            <span class="peer-checked:text-indigo-600 peer-checked:font-bold">No</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Disponibilidad Horaria</label>
                     <div class="grid grid-cols-3 gap-2">
-                        <button type="button" id="btn-mañana" onclick="setHorario('mañana')" class="horario-btn py-3 border border-slate-200 rounded-xl text-sm bg-white">Mañana</button>
-                        <button type="button" id="btn-tarde" onclick="setHorario('tarde')" class="horario-btn py-3 border border-slate-200 rounded-xl text-sm bg-white">Tarde</button>
-                        <button type="button" id="btn-completo" onclick="setHorario('completo')" class="horario-btn py-3 border border-slate-200 rounded-xl text-sm bg-indigo-50 border-indigo-500 text-indigo-600 font-bold">Completo</button>
+                        <button type="button" id="btn-mañana" onclick="setHorario('mañana')"
+                            class="horario-btn py-3 border border-slate-200 rounded-xl text-sm bg-white">Mañana</button>
+                        <button type="button" id="btn-tarde" onclick="setHorario('tarde')"
+                            class="horario-btn py-3 border border-slate-200 rounded-xl text-sm bg-white">Tarde</button>
+                        <button type="button" id="btn-completo" onclick="setHorario('completo')"
+                            class="horario-btn py-3 border border-slate-200 rounded-xl text-sm bg-indigo-50 border-indigo-500 text-indigo-600 font-bold">Completo</button>
                     </div>
                     <input type="hidden" id="horario" value="completo">
                 </div>
+
                 <div class="flex space-x-4">
-                    <button type="button" onclick="nextStep(1)" class="w-1/3 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl">Atrás</button>
-                    <button type="button" onclick="nextStep(3)" class="w-2/3 py-4 bg-indigo-600 text-white font-bold rounded-xl">Siguiente</button>
+                    <button type="button" onclick="nextStep(1)"
+                        class="w-1/3 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl">Atrás</button>
+                    <button type="button" onclick="nextStep(3)"
+                        class="w-2/3 py-4 bg-indigo-600 text-white font-bold rounded-xl">Siguiente</button>
                 </div>
             </div>
 
@@ -145,28 +231,59 @@
             <div id="step-3" class="hidden space-y-6 animate-fade-in">
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">¿Cuentas con experiencia laboral?</label>
-                    <select id="tiene_experiencia" onchange="toggleExperienceFields()" class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none bg-white">
+                    <select id="tiene_experiencia" onchange="toggleExperienceFields()"
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none bg-white">
                         <option value="no">No tengo experiencia</option>
                         <option value="si">Sí, tengo experiencia previa</option>
                     </select>
                 </div>
+
                 <div id="experience-details" class="hidden">
                     <label class="block text-sm font-bold text-slate-700 mb-1">Años de experiencia</label>
-                    <input type="number" id="anios_exp" min="0" value="0" class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input type="number" id="anios_exp" min="0" value="0" max="15"
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Modalidad</label>
+                        <select id="modalidad"
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none bg-white">
+                            <option value="presencial">Presencial</option>
+                            <option value="remoto">Remoto</option>
+                            <option value="hibrido">Híbrido</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Jornada</label>
+                        <select id="jornada"
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none bg-white">
+                            <option value="full">Tiempo Completo</option>
+                            <option value="part">Medio Tiempo</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Habilidades (Máx 5)</label>
                     <div id="skills-container" class="flex flex-wrap gap-2">
-                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium" onclick="toggleSkill(this)">Ventas</span>
-                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium" onclick="toggleSkill(this)">Atención al Cliente</span>
-                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium" onclick="toggleSkill(this)">Caja</span>
-                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium" onclick="toggleSkill(this)">Logística</span>
-                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium" onclick="toggleSkill(this)">Idiomas</span>
+                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium"
+                            onclick="toggleSkill(this)">Ventas</span>
+                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium"
+                            onclick="toggleSkill(this)">Atención al Cliente</span>
+                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium"
+                            onclick="toggleSkill(this)">Caja</span>
+                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium"
+                            onclick="toggleSkill(this)">Logística</span>
+                        <span class="skill-tag px-4 py-2 rounded-full border border-slate-200 text-sm font-medium"
+                            onclick="toggleSkill(this)">Idiomas</span>
                     </div>
                 </div>
                 <div class="flex space-x-4">
-                    <button type="button" onclick="nextStep(2)" class="w-1/3 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl">Atrás</button>
-                    <button type="submit" id="submitBtn" class="w-2/3 py-4 bg-indigo-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center">
+                    <button type="button" onclick="nextStep(2)"
+                        class="w-1/3 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl">Atrás</button>
+                    <button type="submit" id="submitBtn"
+                        class="w-2/3 py-4 bg-indigo-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center">
                         <span id="btnText">Finalizar Perfil</span>
                     </button>
                 </div>
@@ -178,8 +295,13 @@
         let currentStep = 1;
         const selectedSkills = new Set();
 
+        const today = new Date();
+        const maxDate = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate()).toISOString().split("T")[0];
+        document.getElementById('fecha_nacimiento').setAttribute('max', maxDate);
+
+
         // Mostrar nombre del archivo seleccionado
-        document.getElementById('archivo_adjunto').addEventListener('change', function(e) {
+        document.getElementById('archivo_adjunto').addEventListener('change', function (e) {
             const fileName = e.target.files[0] ? e.target.files[0].name : "Haz clic o arrastra un archivo aquí";
             document.getElementById('file-name').innerText = fileName;
         });
@@ -197,6 +319,13 @@
             document.getElementById(`step-${currentStep}-dot`).classList.remove('step-active');
             document.getElementById(`step-${step}-dot`).classList.add('step-active');
             currentStep = step;
+        }
+
+        function calculateAge(birthday) {
+            const birthDate = new Date(birthday);
+            const ageDifMs = Date.now() - birthDate.getTime();
+            const ageDate = new Date(ageDifMs);
+            return Math.abs(ageDate.getUTCFullYear() - 1970);
         }
 
         function toggleFileUploader() {
@@ -231,6 +360,11 @@
             e.preventDefault();
             if (selectedSkills.size === 0) { alert("Selecciona al menos una habilidad."); return; }
 
+            const birthDateValue = document.getElementById('fecha_nacimiento').value;
+            const edad = calculateAge(birthDateValue);
+            const exp = parseInt(document.getElementById('anios_exp').value || 0);
+
+
             const submitBtn = document.getElementById('submitBtn');
             const btnText = document.getElementById('btnText');
             submitBtn.disabled = true;
@@ -240,15 +374,19 @@
             const formData = new FormData();
             formData.append('identidad', document.getElementById('identidad').value);
             formData.append('nombre', document.getElementById('nombre').value);
+            formData.append('edad', edad);
             formData.append('email', document.getElementById('email').value);
             formData.append('telefono', document.getElementById('telefono').value);
             formData.append('residencia', document.getElementById('residencia').value);
             formData.append('estudios', document.getElementById('estudios').value);
+            formData.append('estudia', document.querySelector('input[name="estudia_hoy"]:checked').value);
             formData.append('horario', document.getElementById('horario').value);
             formData.append('experiencia', document.getElementById('tiene_experiencia').value);
             formData.append('anios_exp', document.getElementById('anios_exp').value || 0);
+            formData.append('modalidad', document.getElementById('modalidad').value);
+            formData.append('jornada', document.getElementById('jornada').value);
             formData.append('habilidades', Array.from(selectedSkills).join(', '));
-            
+
             // Adjuntar el archivo si existe
             const fileInput = document.getElementById('archivo_adjunto');
             if (fileInput.files[0]) {
@@ -276,4 +414,5 @@
         };
     </script>
 </body>
+
 </html>
