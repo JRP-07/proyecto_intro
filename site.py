@@ -53,7 +53,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS perfiles (
             identidad TEXT PRIMARY KEY,
             email TEXT,
-            fecha_nacimiento DATE,
+            fecha_nacimiento TEXT,
             edad INTEGER,
             telefono TEXT,
             residencia TEXT,
@@ -605,6 +605,23 @@ def complete_profile():
                 filename = secure_filename(f"{identidad}_comprobante.{ext}")
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
+        # Calcular edad desde fecha de nacimiento y validar
+        fecha_nacimiento_str = request.form.get('fecha_nacimiento')
+        if not fecha_nacimiento_str:
+            return jsonify({"status": "error", "message": "La fecha de nacimiento es requerida"}), 400
+        
+        try:
+            fecha_nacimiento = datetime.strptime(fecha_nacimiento_str, '%Y-%m-%d')
+            today = datetime.now()
+            edad = today.year - fecha_nacimiento.year - ((today.month, today.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
+            
+            # Validar rango de edad (16-30 años)
+            if edad < 16 or edad > 30:
+                return jsonify({"status": "error", "message": f"La edad debe estar entre 16 y 30 años. Edad calculada: {edad} años"}), 400
+                
+        except ValueError:
+            return jsonify({"status": "error", "message": "Formato de fecha de nacimiento inválido"}), 400
+
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         
@@ -618,8 +635,8 @@ def complete_profile():
         ''', (
             identidad,
             request.form.get('email'),
-            request.form.get('fecha_nacimiento'),
-            int(request.form.get('edad', 0)),
+            fecha_nacimiento_str,
+            edad,
             request.form.get('telefono'),
             request.form.get('residencia'),
             request.form.get('estudios'),

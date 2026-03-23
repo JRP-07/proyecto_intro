@@ -294,7 +294,9 @@
 
         const today = new Date();
         const maxDate = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate()).toISOString().split("T")[0];
+        const minDate = new Date(today.getFullYear() - 30, today.getMonth(), today.getDate()).toISOString().split("T")[0];
         document.getElementById('fecha_nacimiento').setAttribute('max', maxDate);
+        document.getElementById('fecha_nacimiento').setAttribute('min', minDate);
 
 
         // Mostrar nombre del archivo seleccionado
@@ -316,13 +318,6 @@
             document.getElementById(`step-${currentStep}-dot`).classList.remove('step-active');
             document.getElementById(`step-${step}-dot`).classList.add('step-active');
             currentStep = step;
-        }
-
-        function calculateAge(birthday) {
-            const birthDate = new Date(birthday);
-            const ageDifMs = Date.now() - birthDate.getTime();
-            const ageDate = new Date(ageDifMs);
-            return Math.abs(ageDate.getUTCFullYear() - 1970);
         }
 
         function toggleFileUploader() {
@@ -357,11 +352,6 @@
             e.preventDefault();
             if (selectedSkills.size === 0) { alert("Selecciona al menos una habilidad."); return; }
 
-            const birthDateValue = document.getElementById('fecha_nacimiento').value;
-            const edad = calculateAge(birthDateValue);
-            const exp = parseInt(document.getElementById('anios_exp').value || 0);
-
-
             const submitBtn = document.getElementById('submitBtn');
             const btnText = document.getElementById('btnText');
             submitBtn.disabled = true;
@@ -372,7 +362,6 @@
             formData.append('identidad', document.getElementById('identidad').value);
             formData.append('nombre', document.getElementById('nombre').value);
             formData.append('fecha_nacimiento', document.getElementById('fecha_nacimiento').value);
-            formData.append('edad', edad);
             formData.append('email', document.getElementById('email').value);
             formData.append('telefono', document.getElementById('telefono').value);
             formData.append('residencia', document.getElementById('residencia').value);
