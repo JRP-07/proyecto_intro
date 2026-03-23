@@ -104,6 +104,17 @@ def init_db():
         )
     ''')
     
+    cursor.execute('''
+                   CREATE TABLE IF NOT EXISTS aplicaciones (
+                       id INTEGER PRIMARY KEY AUTOINCREMENT,
+                       vacante_id INTEGER,
+                       aspirante_id TEXT, 
+                       fecha_aplicacion TEXT, 
+                       estado TEXT DEFAULT 'Pendiente',
+                       FOREIGN KEY (vacante_id) References usuarios(identidad)
+                   )
+                   ''')
+    
     conn.commit()
     conn.close()
 
@@ -143,7 +154,135 @@ def complete_profile_b_page():
 @app.route('/dashboard-aspirantes')
 def dashboard():
     """Panel principal del usuario."""
-    return render_template('dashboard_a.html')
+    if 'user_id' not in session:
+        return redirect(url_for('login_page'))
+    
+    identidad = session['user_id']
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT * FROM perfiles WHERE identidad = ?', (identidad,))
+    aspirantes=cursor.fetchone()
+    
+    if not aspirantes:
+        # Si no tiene perfil, lo mandamos a crearlo
+        return redirect(url_for('crear_perfil_aspirante'))
+    aspirante_dict = dict(aspirantes)
+
+    
+    cursor.execute('SELECT * FROM usuarios WHERE identidad = ?', (identidad,))
+    usuario=cursor.fetchone()
+    usuario_dict=dict(usuario) if usuario else {}
+    
+    cursor.execute('''
+        SELECT a.id as app_id, a.fecha_aplicacion, a.estado, 
+               v.*, e.nombre_empresa
+        FROM aplicaciones a
+        JOIN vacantes v ON a.vacante_id = v.id
+        JOIN perfiles_empresas e ON v.empresa_id = e.RTN
+        WHERE a.aspirante_id = ?
+        ORDER BY a.id DESC
+    ''', (identidad,))
+    mis_aplicaciones = [dict(row) for row in cursor.fetchall()]
+    
+    cursor.execute('''
+        SELECT v.*, e.nombre_empresa 
+        FROM vacantes v
+        JOIN perfiles_empresas e ON v.empresa_id = e.RTN
+        WHERE v.estado = 'activa' 
+        AND v.id NOT IN (SELECT vacante_id FROM aplicaciones WHERE aspirante_id = ?)
+        AND (v.ubicacion = ? OR v.ubicacion = 'Remoto')
+        AND v.c_experiencia <= ?
+        AND v.jornada = ?
+        AND v.horario = ?
+        AND v.modalidad = ?
+        ORDER BY v.id DESC
+    ''', (
+        identidad, 
+        aspirante_dict['residencia'], 
+        aspirante_dict['anios_exp'], 
+        aspirante_dict['jornada'],
+        aspirante_dict['horario'],
+        aspirante_dict['modalidad']
+    ))
+    ofertas = [dict(row) for row in cursor.fetchall()]
+
+    
+    conn.close()
+    
+    return render_template('dashboard_a.html', perfil=aspirante_dict, usuario=usuario_dict, aplicaciones=mis_aplicaciones, ofertas=ofertas)
+
+
+#aplicar para vacante
+@app.route('/api/vacantes/aplicar', methods=['POST'])
+def aplicar_vacante():
+    """Registra la postulación de un aspirante a una vacante."""
+    if 'user_id' not in session:
+        return jsonify({"message": "Inicie sesión para aplicar"}), 401
+    
+    data = request.get_json()
+    vacante_id = data.get('vacante_id')
+    aspirante_id = session['user_id']
+    fecha = datetime.now().strftime("%d/%m/%Y %H:%M")
+
+    if not vacante_id:
+        return jsonify({"message": "ID de vacante no proporcionado"}), 400
+
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        # Verificar si ya aplicó
+        cursor.execute('SELECT id FROM aplicaciones WHERE vacante_id = ? AND aspirante_id = ?', 
+                       (vacante_id, aspirante_id))
+        if cursor.fetchone():
+            conn.close()
+            return jsonify({"message": "Ya te has postulado a esta vacante"}), 400
+
+        # Insertar aplicación
+        cursor.execute('''
+            INSERT INTO aplicaciones (vacante_id, aspirante_id, fecha_aplicacion, estado)
+            VALUES (?, ?, ?, 'Pendiente')
+        ''', (vacante_id, aspirante_id, fecha))
+        
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "success", "message": "¡Postulación enviada con éxito!"}), 200
+
+    except Exception as e:
+        return jsonify({"message": f"Error al procesar: {str(e)}"}), 500
+
+#eliminar postulacion de vacante
+@app.route('/api/aplicaciones/eliminar', methods=['POST'])
+def eliminar_aplicacion():
+    """Permite al aspirante retirar su postulación."""
+    if 'user_id' not in session:
+        return jsonify({"message": "No autorizado"}), 401
+    
+    data = request.get_json()
+    app_id = data.get('app_id')
+    aspirante_id = session['user_id']
+
+    if not app_id:
+        return jsonify({"message": "ID de aplicación requerido"}), 400
+
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # Verificar que la aplicación pertenezca al usuario
+        cursor.execute('DELETE FROM aplicaciones WHERE id = ? AND aspirante_id = ?', (app_id, aspirante_id))
+        
+        if cursor.rowcount == 0:
+            conn.close()
+            return jsonify({"message": "No se encontró la aplicación o no tienes permiso"}), 404
+            
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "success", "message": "Postulación eliminada con éxito"}), 200
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
 
 #Dashboard de empresas
 @app.route('/dashboard-empresas')

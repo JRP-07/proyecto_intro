@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalentFlow | Mi Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass-effect { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .modal-active { display: flex !important; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex text-slate-900">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-indigo-900 text-white flex-shrink-0 hidden md:flex flex-col">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold tracking-tight">Talent<span class="text-indigo-400">Flow</span></h1>
+            <p class="text-xs text-indigo-300 mt-1 uppercase tracking-widest font-semibold">Aspirante</p>
+        </div>
+        
+        <nav class="mt-6 flex-1 px-4 space-y-2">
+            <a href="#" class="flex items-center space-x-3 bg-indigo-800 p-3 rounded-lg text-white">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Resumen</span>
+            </a>
+            <a href="/crear-perfil" class="flex items-center space-x-3 hover:bg-indigo-800 p-3 rounded-lg text-indigo-100 transition">
+                <i class="fa-solid fa-user"></i>
+                <span>Mi Perfil</span>
+            </a>
+            <a href="#" class="flex items-center space-x-3 hover:bg-indigo-800 p-3 rounded-lg text-indigo-100 transition">
+                <i class="fa-solid fa-briefcase"></i>
+                <span>Explorar Empleos</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-indigo-800">
+            <a href="/api/logout" class="flex items-center space-x-3 hover:text-red-400 p-3 transition text-indigo-300">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        
+        <!-- Top Header -->
+        <header class="bg-white border-b p-4 flex justify-between items-center px-8 shadow-sm">
+            <h2 class="text-xl font-semibold text-slate-800">Panel de Control</h2>
+            <div class="flex items-center space-x-4">
+                <div class="text-right">
+                    <span class="block text-sm font-medium text-slate-600">Hola, <span class="text-indigo-600 font-bold">{{ usuario.nombre_completo if usuario else 'Usuario' }}</span></span>
+                    <span class="block text-[10px] text-slate-400 uppercase tracking-tighter">{{ usuario.identidad if usuario else '' }}</span>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200">
+                    {{ (usuario.nombre_completo if usuario else 'U')[0] | upper }}
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Scrollable Content -->
+        <div class="flex-1 overflow-y-auto p-8">
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-slate-500 font-medium">Aplicaciones Enviadas</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">{{ aplicaciones | length if aplicaciones else 0 }}</h3>
+                        </div>
+                        <div class="bg-blue-50 text-blue-600 p-3 rounded-xl">
+                            <i class="fa-solid fa-paper-plane text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-slate-500 font-medium">Ofertas Disponibles</p>
+                            <h3 class="text-3xl font-bold text-slate-800 mt-1">{{ ofertas | length if ofertas else 0 }}</h3>
+                        </div>
+                        <div class="bg-indigo-50 text-indigo-600 p-3 rounded-xl">
+                            <i class="fa-solid fa-bell text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-slate-500 font-medium">Estado de Perfil</p>
+                            <h3 class="text-lg font-bold text-green-600 mt-1">✓ Completado</h3>
+                        </div>
+                        <div class="bg-green-50 text-green-600 p-3 rounded-xl">
+                            <i class="fa-solid fa-circle-check text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sections Container -->
+            <div class="space-y-10">
+                
+                <!-- MIS APLICACIONES -->
+                <section>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-file-invoice text-indigo-600 mr-2"></i>
+                            Mis Aplicaciones Recientes
+                        </h3>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                        {% if aplicaciones %}
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-50 border-b">
+                                <tr>
+                                    <th class="p-4 text-xs font-semibold text-slate-500 uppercase">Puesto</th>
+                                    <th class="p-4 text-xs font-semibold text-slate-500 uppercase">Empresa</th>
+                                    <th class="p-4 text-xs font-semibold text-slate-500 uppercase text-center">Fecha</th>
+                                    <th class="p-4 text-xs font-semibold text-slate-500 uppercase text-center">Estado</th>
+                                    <th class="p-4 text-xs font-semibold text-slate-500 uppercase text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for app in aplicaciones %}
+                                <tr class="border-b last:border-0 hover:bg-slate-50 transition">
+                                    <td class="p-4">
+                                        <p class="font-semibold text-slate-800">{{ app.titulo }}</p>
+                                    </td>
+                                    <td class="p-4 text-slate-600">{{ app.nombre_empresa }}</td>
+                                    <td class="p-4 text-center text-slate-500 text-sm">{{ app.fecha_aplicacion }}</td>
+                                    <td class="p-4 text-center">
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase
+                                            {% if app.estado == 'Pendiente' %} bg-yellow-100 text-yellow-700
+                                            {% elif app.estado == 'Revisado' %} bg-blue-100 text-blue-700
+                                            {% else %} bg-slate-100 text-slate-600 {% endif %}">
+                                            {{ app.estado or 'Enviada' }}
+                                        </span>
+                                    </td>
+                                    <td class="p-4 text-center">
+                                        <div class="flex items-center justify-center space-x-3">
+                                            <button onclick='verDetalleApp({{ app | tojson | safe }})' class="text-indigo-500 hover:text-indigo-700 transition" title="Ver detalles">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </button>
+                                            <button onclick="retirarPostulacion('{{ app.app_id }}')" class="text-red-400 hover:text-red-600 transition" title="Retirar postulación">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div class="p-12 text-center">
+                            <div class="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fa-solid fa-folder-open text-slate-300 text-2xl"></i>
+                            </div>
+                            <p class="text-slate-500 font-medium">Aún no has aplicado a ninguna vacante.</p>
+                            <p class="text-sm text-slate-400 mt-1">¡Explora las ofertas disponibles abajo!</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <!-- OFERTAS PARA TI -->
+                <section>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-star text-yellow-500 mr-2"></i>
+                            Ofertas Recomendadas para ti
+                        </h3>
+                    </div>
+
+                    {% if ofertas %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for vacante in ofertas %}
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-indigo-200 transition group">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-bold group-hover:bg-indigo-600 group-hover:text-white transition">
+                                    {{ (vacante.nombre_empresa or 'E')[0] | upper }}
+                                </div>
+                                <span class="text-xs font-bold bg-green-50 text-green-700 px-2 py-1 rounded uppercase">Nueva</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-lg mb-1">{{ vacante.titulo }}</h4>
+                            <p class="text-indigo-600 font-medium text-sm mb-4">{{ vacante.nombre_empresa }}</p>
+                            
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-1 rounded-md font-bold uppercase">
+                                    <i class="fa-solid fa-location-dot mr-1"></i>{{ vacante.ubicacion or 'Remoto' }}
+                                </span>
+                                <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-1 rounded-md font-bold uppercase">
+                                    <i class="fa-solid fa-clock mr-1"></i>{{ vacante.modalidad or 'TC' }}
+                                </span>
+                            </div>
+
+                            <button onclick="aplicarVacante('{{ vacante.id }}')" class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-indigo-600 transition shadow-sm">
+                                Aplicar Ahora
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="bg-white p-12 rounded-2xl text-center border-2 border-dashed border-slate-200">
+                        <p class="text-slate-400 font-medium italic">No hay ofertas nuevas por el momento.</p>
+                    </div>
+                    {% endif %}
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Detalle Aplicación -->
+    <div id="modalDetalle" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300">
+            <div class="p-6 bg-indigo-600 text-white flex justify-between items-center">
+                <h3 class="text-xl font-bold">Detalle de Postulación</h3>
+                <button onclick="cerrarModal()" class="text-white/80 hover:text-white transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-8 space-y-6">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Puesto</label>
+                    <p id="m_titulo" class="text-xl font-bold text-slate-800"></p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Empresa</label>
+                        <p id="m_empresa" class="font-semibold text-indigo-600"></p>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Estado</label>
+                        <p id="m_estado" class="font-bold"></p>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Descripción de la Vacante</label>
+                    <p id="m_descripcion" class="text-slate-600 text-sm bg-slate-50 p-4 rounded-xl mt-1 border border-slate-100 max-h-40 overflow-y-auto"></p>
+                </div>
+                <div class="pt-4 border-t flex justify-end">
+                    <button onclick="cerrarModal()" class="px-6 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function verDetalleApp(app) {
+            document.getElementById('m_titulo').innerText = app.titulo || 'Sin título';
+            document.getElementById('m_empresa').innerText = app.nombre_empresa || 'Empresa';
+            document.getElementById('m_estado').innerText = app.estado || 'Enviada';
+            document.getElementById('m_descripcion').innerText = app.descripcion || 'Sin descripción disponible.';
+            
+            const modal = document.getElementById('modalDetalle');
+            modal.classList.remove('hidden');
+            modal.classList.add('modal-active');
+        }
+
+        function cerrarModal() {
+            const modal = document.getElementById('modalDetalle');
+            modal.classList.add('hidden');
+            modal.classList.remove('modal-active');
+        }
+
+        async function retirarPostulacion(appId) {
+            if (!confirm('¿Estás seguro de que deseas retirar tu postulación para este puesto?')) return;
+
+            try {
+                const response = await fetch('/api/aplicaciones/eliminar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ app_id: appId })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    location.reload(); 
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch (error) {
+                alert("Error de conexión al intentar eliminar.");
+            }
+        }
+
+        async function aplicarVacante(vacanteId) {
+            try {
+                const response = await fetch('/api/vacantes/aplicar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ vacante_id: vacanteId })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch (error) {
+                alert("Error de conexión.");
+            }
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalDetalle');
+            if (event.target == modal) {
+                cerrarModal();
+            }
+        }
+    </script>
+</body>
+</html>
