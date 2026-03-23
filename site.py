@@ -53,6 +53,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS perfiles (
             identidad TEXT PRIMARY KEY,
             email TEXT,
+            fecha_nacimiento DATE,
             edad INTEGER,
             telefono TEXT,
             residencia TEXT,
@@ -115,6 +116,13 @@ def init_db():
                    )
                    ''')
     
+    # Migración: Agregar columna fecha_nacimiento a perfiles si no existe
+    try:
+        cursor.execute("ALTER TABLE perfiles ADD COLUMN fecha_nacimiento TEXT")
+    except sqlite3.OperationalError:
+        # La columna ya existe, ignorar el error
+        pass
+    
     conn.commit()
     conn.close()
 
@@ -140,15 +148,92 @@ def register_page():
 def complete_profile_page():
     if 'user_id' not in session:
         return redirect(url_for('login_page'))
+    
+    # Obtener los datos del usuario registrado
+    identidad = session['user_id']
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute('SELECT identidad, nombre_completo FROM usuarios WHERE identidad = ?', (identidad,))
+    usuario = cursor.fetchone()
+    conn.close()
+    
+    if not usuario:
+        return redirect(url_for('login_page'))
+    
+    usuario_data = dict(usuario)
+    
     """Ruta para completar los datos."""
-    return render_template('c_perfil_aspirante.html')
+    return render_template('c_perfil_aspirante.html', identidad=usuario_data['identidad'], nombre=usuario_data['nombre_completo'])
+
+@app.route('/mi-perfil')
+def mi_perfil():
+    """Ruta para editar el perfil existente del aspirante."""
+    if 'user_id' not in session:
+        return redirect(url_for('login_page'))
+    
+    identidad = session['user_id']
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    # Obtener datos del usuario
+    cursor.execute('SELECT identidad, nombre_completo FROM usuarios WHERE identidad = ?', (identidad,))
+    usuario = cursor.fetchone()
+    
+    if not usuario:
+        conn.close()
+        return redirect(url_for('login_page'))
+    
+    # Obtener datos del perfil si existe
+    cursor.execute('SELECT * FROM perfiles WHERE identidad = ?', (identidad,))
+    perfil = cursor.fetchone()
+    
+    conn.close()
+    
+    usuario_data = dict(usuario)
+    perfil_data = dict(perfil) if perfil else {}
+    
+    # Combinar datos del usuario y perfil para pasar al template
+    template_data = {
+        'identidad': usuario_data['identidad'],
+        'nombre': usuario_data['nombre_completo'],
+        'email': perfil_data.get('email', ''),
+        'fecha_nacimiento': perfil_data.get('fecha_nacimiento', ''),
+        'edad': perfil_data.get('edad', ''),
+        'telefono': perfil_data.get('telefono', ''),
+        'residencia': perfil_data.get('residencia', ''),
+        'estudios': perfil_data.get('estudios', ''),
+        'estudia': perfil_data.get('estudia', ''),
+        'archivo_adjunto': perfil_data.get('archivo_adjunto', ''),
+        'horario': perfil_data.get('horario', ''),
+        'experiencia': perfil_data.get('experiencia', ''),
+        'anios_exp': perfil_data.get('anios_exp', ''),
+        'modalidad': perfil_data.get('modalidad', ''),
+        'jornada': perfil_data.get('jornada', ''),
+        'habilidades': perfil_data.get('habilidades', '')
+    }
+    
+    return render_template('c_perfil_aspirante.html', **template_data)
 
 @app.route('/crear-perfil-empresa')
 def complete_profile_b_page():
     if 'user_id' not in session:
         return redirect(url_for('login_page'))
+    
+    # Obtener el nombre de la empresa registrada
+    identidad = session['user_id']
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute('SELECT nombre_completo FROM usuarios WHERE identidad = ?', (identidad,))
+    usuario = cursor.fetchone()
+    conn.close()
+    
+    nombre_empresa = dict(usuario)['nombre_completo'] if usuario else ''
+    
     """Ruta para completar los datos."""
-    return render_template('c_perfil_empresa.html')
+    return render_template('c_perfil_empresa.html', nombre_empresa=nombre_empresa)
     
 #Dashboard de aspirantes    
 @app.route('/dashboard-aspirantes')
@@ -162,12 +247,20 @@ def dashboard():
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
+    # Verificar si el perfil está completado
+    cursor.execute('SELECT perfil_completo FROM usuarios WHERE identidad = ?', (identidad,))
+    usuario_check = cursor.fetchone()
+    if not usuario_check or not usuario_check['perfil_completo']:
+        conn.close()
+        return redirect(url_for('/crear-perfil'))
+    
     cursor.execute('SELECT * FROM perfiles WHERE identidad = ?', (identidad,))
     aspirantes=cursor.fetchone()
     
     if not aspirantes:
         # Si no tiene perfil, lo mandamos a crearlo
-        return redirect(url_for('crear_perfil_aspirante'))
+        conn.close()
+        return redirect(url_for('/register'))
     aspirante_dict = dict(aspirantes)
 
     
@@ -186,30 +279,35 @@ def dashboard():
     ''', (identidad,))
     mis_aplicaciones = [dict(row) for row in cursor.fetchall()]
     
+    # Obtener todas las vacantes activas que no ha solicitado
     cursor.execute('''
         SELECT v.*, e.nombre_empresa 
         FROM vacantes v
         JOIN perfiles_empresas e ON v.empresa_id = e.RTN
         WHERE v.estado = 'activa' 
         AND v.id NOT IN (SELECT vacante_id FROM aplicaciones WHERE aspirante_id = ?)
-        AND (v.ubicacion = ? OR v.ubicacion = 'Remoto')
-        AND v.c_experiencia <= ?
-        AND v.jornada = ?
-        AND v.horario = ?
-        AND v.modalidad = ?
         ORDER BY v.id DESC
-    ''', (
-        identidad, 
-        aspirante_dict['residencia'], 
-        aspirante_dict['anios_exp'], 
-        aspirante_dict['jornada'],
-        aspirante_dict['horario'],
-        aspirante_dict['modalidad']
-    ))
-    ofertas = [dict(row) for row in cursor.fetchall()]
-
+    ''', (identidad,))
+    todas_vacantes = [dict(row) for row in cursor.fetchall()]
     
     conn.close()
+    
+    # Normalizar jornada
+    jornada_map = {'full': 'tiempo completo', 'medio': 'medio tiempo', 'tiempo completo': 'tiempo completo', 'medio tiempo': 'medio tiempo'}
+    
+    # Filtrar vacantes que coincidan con los requisitos del aspirante
+    def norm(val):
+        return (val or '').lower()
+    
+    jornada_asp = jornada_map.get(norm(aspirante_dict.get('jornada')), norm(aspirante_dict.get('jornada')))
+    
+    ofertas = [v for v in todas_vacantes if (
+        (norm(v.get('ubicacion')) == norm(aspirante_dict.get('residencia')) or norm(v.get('ubicacion')) == 'remoto') and
+        (v.get('c_experiencia') or 0) <= (aspirante_dict.get('anios_exp') or 0) and
+        jornada_map.get(norm(v.get('jornada')), norm(v.get('jornada'))) == jornada_asp and
+        norm(v.get('horario')) == norm(aspirante_dict.get('horario')) and
+        norm(v.get('modalidad')) == norm(aspirante_dict.get('modalidad'))
+    )]
     
     return render_template('dashboard_a.html', perfil=aspirante_dict, usuario=usuario_dict, aplicaciones=mis_aplicaciones, ofertas=ofertas)
 
@@ -295,6 +393,14 @@ def dashboard_e():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
+    
+    
+    # Verificar si el perfil está completado
+    cursor.execute('SELECT perfil_completo FROM usuarios WHERE identidad = ?', (identidad,))
+    usuario_check = cursor.fetchone()
+    if not usuario_check or not usuario_check['perfil_completo']:
+        conn.close()
+        return redirect(url_for('complete_profile_b_page'))
     
     # Datos de la empresa
     cursor.execute('SELECT * FROM perfiles_empresas WHERE RTN = ?', (identidad,))
@@ -447,17 +553,28 @@ def login():
         data = request.get_json()
         identidad = data.get('identidad')
         password = data.get('password')
+        user_type = data.get('type')  # 'user' or 'business'
+
+        if not identidad or not password or not user_type:
+            return jsonify({"message": "Faltan datos requeridos"}), 400
+
+        # Map type to database type
+        db_type = 'empresa' if user_type == 'business' else 'aspirante'
 
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute('SELECT password, perfil_completo FROM usuarios WHERE identidad = ?', (identidad,))
+        cursor.execute('SELECT password, perfil_completo, tipo_usuario FROM usuarios WHERE identidad = ? AND tipo_usuario = ?', (identidad, db_type))
         user = cursor.fetchone()
         conn.close()
 
         if user and user[0] == password:
             session['user_id'] = identidad
-            # Redirigir según el estado del perfil
-            target = "/dashboard-aspirantes" if user[1] == 1 else "/crear-perfil"
+            session['user_type'] = db_type
+            # Redirigir según el tipo y estado del perfil
+            if db_type == 'aspirante':
+                target = "/dashboard-aspirantes" if user[1] == 1 else "/crear-perfil"
+            else:
+                target = "/dashboard-empresas"
             return jsonify({"redirect_url": target}), 200
         
         return jsonify({"message": "Credenciales incorrectas"}), 401
@@ -494,13 +611,14 @@ def complete_profile():
         # Insertar datos extendidos en la tabla de perfiles
         cursor.execute('''
             INSERT OR REPLACE INTO perfiles (
-                identidad, email, edad, telefono, residencia, estudios, estudia,
+                identidad, email, fecha_nacimiento, edad, telefono, residencia, estudios, estudia,
                 archivo_adjunto, horario, experiencia, anios_exp, 
                 modalidad, jornada, habilidades
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             identidad,
             request.form.get('email'),
+            request.form.get('fecha_nacimiento'),
             int(request.form.get('edad', 0)),
             request.form.get('telefono'),
             request.form.get('residencia'),
@@ -558,7 +676,7 @@ def complete_company_profile():
             identidad,
             request.form.get('nombre_empresa'),
             request.form.get('descripcion'),
-            request.form.get('direccion'),
+            request.form.get('ubicacion'),
             request.form.get('contacto_RRHH'),
             request.form.get('telefono_empresa')
         ))
@@ -599,6 +717,44 @@ def crear_vacante():
         conn.commit()
         conn.close()
         return jsonify({"status": "success", "message": "Propuesta publicada"}), 200
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
+
+
+@app.route('/api/vacantes/<int:vacante_id>/candidatos', methods=['GET'])
+def obtener_candidatos_vacante(vacante_id):
+    """Obtiene los candidatos que han aplicado a una vacante específica."""
+    if 'user_id' not in session:
+        return jsonify({"message": "No autorizado"}), 401
+    
+    try:
+        identidad = session['user_id']
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Verificar que la vacante pertenece a la empresa logueada
+        cursor.execute('SELECT empresa_id FROM vacantes WHERE id = ?', (vacante_id,))
+        vacante = cursor.fetchone()
+        if not vacante or vacante['empresa_id'] != identidad:
+            conn.close()
+            return jsonify({"message": "No tiene permiso para ver estos candidatos"}), 403
+        
+        # Obtener candidatos que han aplicado a esta vacante
+        cursor.execute('''
+            SELECT DISTINCT a.aspirante_id, a.fecha_aplicacion, a.estado, u.nombre_completo, p.email, p.telefono, p.residencia, p.habilidades, p.experiencia, p.anios_exp
+            FROM aplicaciones a
+            JOIN usuarios u ON a.aspirante_id = u.identidad
+            LEFT JOIN perfiles p ON a.aspirante_id = p.identidad
+            WHERE a.vacante_id = ?
+            ORDER BY a.fecha_aplicacion DESC
+        ''', (vacante_id,))
+        
+        candidatos = cursor.fetchall()
+        candidatos_list = [dict(c) for c in candidatos]
+        conn.close()
+        
+        return jsonify({"candidatos": candidatos_list, "total": len(candidatos_list)}), 200
     except Exception as e:
         return jsonify({"message": str(e)}), 500
 

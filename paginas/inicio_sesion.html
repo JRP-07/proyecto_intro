@@ -149,21 +149,21 @@
 
             <form id="loginForm" class="space-y-6">
                 <div>
-                    <label id="labelIdentifier" class="block text-sm font-bold text-slate-700 mb-2 ml-2">Correo Electrónico</label>
+                    <label id="labelIdentifier" class="block text-sm font-bold text-slate-700 mb-2 ml-2">Identidad</label>
                     <div class="relative group">
                         <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
-                            <i id="inputIcon" class="fas fa-at"></i>
+                            <i id="inputIcon" class="fas fa-id-card"></i>
                         </span>
-                        <input type="email" id="email" name="email" required 
+                        <input type="text" id="identidad" name="identidad" required 
                                class="w-full pl-14 pr-6 py-4 bg-white/50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white transition-all shadow-sm placeholder:text-slate-300" 
-                               placeholder="ejemplo@correo.com">
+                               placeholder="Ingrese su identidad">
                     </div>
                 </div>
 
                 <div>
                     <div class="flex justify-between mb-2 ml-2">
                         <label class="text-sm font-bold text-slate-700">Contraseña</label>
-                        <a href="#" class="text-xs text-indigo-500 hover:text-indigo-700 font-bold transition-colors">¿Olvidaste la clave?</a>
+                        <!-- <a href="#" class="text-xs text-indigo-500 hover:text-indigo-700 font-bold transition-colors">¿Olvidaste la clave?</a> -->
                     </div>
                     <div class="relative group">
                         <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
@@ -227,9 +227,9 @@
                 title.innerText = 'Portal Corporativo';
                 desc.innerText = 'Accede a tus herramientas de reclutamiento';
                 icon.className = 'fas fa-building text-4xl';
-                label.innerText = 'RTN de Empresa / Correo';
+                label.innerText = 'RTN de Empresa';
                 inputField.type = 'text';
-                inputField.placeholder = 'Ingrese RTN o Email';
+                inputField.placeholder = 'Ingrese RTN (Ejemplo: 125402111151)';
                 inputIcon.className = 'fas fa-briefcase';
                 
                 submitBtn.className = 'w-full py-5 bg-cyan-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-cyan-700 transition-all shadow-xl shadow-cyan-900/40 active:scale-[0.98] mt-4 flex items-center justify-center';
@@ -248,10 +248,10 @@
                 title.innerText = 'Acceso Personal';
                 desc.innerText = 'Gestiona tu carrera profesional';
                 icon.className = 'fas fa-user-astronaut text-4xl';
-                label.innerText = 'Correo Electrónico';
-                inputField.type = 'email';
-                inputField.placeholder = 'ejemplo@correo.com';
-                inputIcon.className = 'fas fa-at';
+                label.innerText = 'Identidad';
+                inputField.type = 'text';
+                inputField.placeholder = 'Ejemplo: 0801-1999-12345';
+                inputIcon.className = 'fas fa-id-card';
 
                 submitBtn.className = 'w-full py-5 bg-indigo-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-[0.98] mt-4 flex items-center justify-center';
                 logoBox.className = 'w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-xl transition-all duration-500 group-hover:scale-110';
@@ -263,13 +263,13 @@
 
         function goToRegister() {
             // Redirige según el tipo seleccionado actualmente
-            window.location.href = currentType === 'business' ? '/registro-empresa' : '/registro-aspirante';
+            window.location.href = '/register';
         }
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const email = document.getElementById('email').value;
+            const identidad = document.getElementById('identidad').value;
             const password = document.getElementById('password').value;
             // Se envía 'business' o 'user' para que el backend busque en la tabla correcta
             const type = currentType; 
@@ -288,7 +288,7 @@
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, type })
+                    body: JSON.stringify({ identidad, password, type })
                 });
 
                 const data = await response.json();

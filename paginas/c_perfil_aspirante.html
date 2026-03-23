@@ -105,20 +105,23 @@
                         <label class="block text-sm font-bold text-slate-700 mb-1">Identidad</label>
                         <input type="text" id="identidad" required
                             class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-                            placeholder="Número de Identidad" readonly="true">
+                            placeholder="Número de Identidad" readonly="true"
+                            value="{{ identidad or '' }}">
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-1">Nombre Completo</label>
                             <input type="text" id="nombre" required
                                 class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-                                placeholder="Ej: Juan Pérez">
+                                placeholder="Ej: Juan Pérez"
+                                value="{{ nombre or '' }}">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-1">Fecha de Nacimiento</label>
                             <input type="date" id="fecha_nacimiento" required
                                 class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-                                min="1997-01-01" max="2008-12-31">
+                                min="1997-01-01" max="2008-12-31"
+                                value="{{ fecha_nacimiento or '' }}">
                         </div>
                     </div>
                     <div>
@@ -128,7 +131,8 @@
                                     class="fas fa-envelope"></i></span>
                             <input type="email" id="email" required
                                 class="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50"
-                                placeholder="tu@correo.com">
+                                placeholder="tu@correo.com"
+                                value="{{ email or '' }}">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -136,13 +140,15 @@
                             <label class="block text-sm font-bold text-slate-700 mb-1">Teléfono</label>
                             <input type="tel" id="telefono" required
                                 class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-                                placeholder="+504 9999-9999">
+                                placeholder="+504 9999-9999"
+                                value="{{ telefono or '' }}">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-1">Ciudad de Residencia</label>
                             <input type="text" id="residencia" required
                                 class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-                                placeholder="San Pedro Sula, HN">
+                                placeholder="San Pedro Sula, HN"
+                                value="{{ residencia or '' }}">
                         </div>
                     </div>
                 </div>
@@ -156,13 +162,13 @@
                     <label class="block text-sm font-bold text-slate-700 mb-2">Nivel de Estudios</label>
                     <select id="estudios" onchange="toggleFileUploader()"
                         class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
-                        <option value="ninguno">Sin estudios formales</option>
-                        <option value="primaria">Primaria Completa</option>
-                        <option value="secundaria">Secundaria Completa</option>
-                        <option value="universitario">Universitario Completo</option>
-                        <option value="tecnico">Técnico Completo</option>
-                        <option value="maestria">Maestría Completa</option>
-                        <option value="doctorado">Doctorado Completo</option>
+                        <option value="ninguno" {% if estudios == 'ninguno' %}selected{% endif %}>Sin estudios formales</option>
+                        <option value="primaria" {% if estudios == 'primaria' %}selected{% endif %}>Primaria Completa</option>
+                        <option value="secundaria" {% if estudios == 'secundaria' %}selected{% endif %}>Secundaria Completa</option>
+                        <option value="universitario" {% if estudios == 'universitario' %}selected{% endif %}>Universitario Completo</option>
+                        <option value="tecnico" {% if estudios == 'tecnico' %}selected{% endif %}>Técnico Completo</option>
+                        <option value="maestria" {% if estudios == 'maestria' %}selected{% endif %}>Maestría Completa</option>
+                        <option value="doctorado" {% if estudios == 'doctorado' %}selected{% endif %}>Doctorado Completo</option>
                     </select>
                 </div>
 
@@ -186,12 +192,12 @@
                     <div class="flex space-x-4">
                         <label
                             class="flex-1 border border-slate-200 p-3 rounded-xl cursor-pointer hover:bg-slate-50 text-center">
-                            <input type="radio" name="estudia_hoy" value="si" class="hidden peer">
+                            <input type="radio" name="estudia_hoy" value="si" class="hidden peer" {% if estudia == 'si' %}checked{% endif %}>
                             <span class="peer-checked:text-indigo-600 peer-checked:font-bold">Sí</span>
                         </label>
                         <label
                             class="flex-1 border border-slate-200 p-3 rounded-xl cursor-pointer hover:bg-slate-50 text-center">
-                            <input type="radio" name="estudia_hoy" value="no" class="hidden peer" checked>
+                            <input type="radio" name="estudia_hoy" value="no" class="hidden peer" {% if estudia == 'no' or not estudia %}checked{% endif %}>
                             <span class="peer-checked:text-indigo-600 peer-checked:font-bold">No</span>
                         </label>
                     </div>
@@ -207,7 +213,7 @@
                         <button type="button" id="btn-completo" onclick="setHorario('noche')"
                             class="horario-btn py-3 border border-slate-200 rounded-xl text-sm bg-indigo-50 border-indigo-500 text-indigo-600 font-bold">Nocturno</button>
                     </div>
-                    <input type="hidden" id="horario" value="completo">
+                    <input type="hidden" id="horario" value="{{ horario or 'completo' }}">
                 </div>
 
                 <div class="flex space-x-4">
@@ -224,14 +230,14 @@
                     <label class="block text-sm font-bold text-slate-700 mb-2">¿Cuentas con experiencia laboral?</label>
                     <select id="tiene_experiencia" onchange="toggleExperienceFields()"
                         class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none bg-white">
-                        <option value="no">No tengo experiencia</option>
-                        <option value="si">Sí, tengo experiencia previa</option>
+                        <option value="no" {% if experiencia == 'no' or not experiencia %}selected{% endif %}>No tengo experiencia</option>
+                        <option value="si" {% if experiencia == 'si' %}selected{% endif %}>Sí, tengo experiencia previa</option>
                     </select>
                 </div>
 
                 <div id="experience-details" class="hidden">
                     <label class="block text-sm font-bold text-slate-700 mb-1">Años de experiencia</label>
-                    <input type="number" id="anios_exp" min="0" value="0" max="15"
+                    <input type="number" id="anios_exp" min="0" value="{{ anios_exp or 0 }}" max="15"
                         class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
@@ -240,17 +246,17 @@
                         <label class="block text-sm font-bold text-slate-700 mb-1">Modalidad</label>
                         <select id="modalidad"
                             class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none bg-white">
-                            <option value="presencial">Presencial</option>
-                            <option value="remoto">Remoto</option>
-                            <option value="hibrido">Híbrido</option>
+                            <option value="presencial" {% if modalidad == 'presencial' %}selected{% endif %}>Presencial</option>
+                            <option value="remoto" {% if modalidad == 'remoto' %}selected{% endif %}>Remoto</option>
+                            <option value="hibrido" {% if modalidad == 'hibrido' %}selected{% endif %}>Híbrido</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-1">Jornada</label>
                         <select id="jornada"
                             class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none bg-white">
-                            <option value="full">Tiempo Completo</option>
-                            <option value="part">Medio Tiempo</option>
+                            <option value="full" {% if jornada == 'full' %}selected{% endif %}>Tiempo Completo</option>
+                            <option value="part" {% if jornada == 'part' %}selected{% endif %}>Medio Tiempo</option>
                         </select>
                     </div>
                 </div>
@@ -365,6 +371,7 @@
             const formData = new FormData();
             formData.append('identidad', document.getElementById('identidad').value);
             formData.append('nombre', document.getElementById('nombre').value);
+            formData.append('fecha_nacimiento', document.getElementById('fecha_nacimiento').value);
             formData.append('edad', edad);
             formData.append('email', document.getElementById('email').value);
             formData.append('telefono', document.getElementById('telefono').value);
@@ -411,6 +418,23 @@
         };
 
         window.onload = function () {
+            // Inicializar horario guardado
+            const horarioGuardado = document.getElementById('horario').value;
+            if (horarioGuardado) {
+                setHorario(horarioGuardado);
+            }
+            
+            // Inicializar habilidades guardadas
+            const habilidadesGuardadas = "{{ habilidades or '' }}".split(', ').filter(h => h.trim());
+            habilidadesGuardadas.forEach(habilidad => {
+                const skillElements = document.querySelectorAll('.skill-tag');
+                skillElements.forEach(el => {
+                    if (el.innerText.trim() === habilidad.trim()) {
+                        toggleSkill(el);
+                    }
+                });
+            });
+            
             // Buscamos la identidad guardada
             const identidadGuardada = localStorage.getItem('temp_identidad');
             const nombreGuardado = localStorage.getItem('temp_nombre');
