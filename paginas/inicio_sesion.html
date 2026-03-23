@@ -111,7 +111,7 @@
     <div id="glowEffect" class="fixed inset-0 glow-user pointer-events-none"></div>
 
     <div class="w-full max-w-lg z-10">
-        <!-- Enlace a inicio.html (Landing) -->
+        <!-- Logo -->
         <div class="flex items-center justify-center space-x-3 mb-10 cursor-pointer group" onclick="window.location.href='/'">
             <div id="logoBox" class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-xl transition-all duration-500 group-hover:scale-110">
                 <i class="fas fa-rocket text-white text-2xl"></i>
@@ -129,7 +129,7 @@
             <h1 id="mainTitle" class="text-3xl font-bold text-slate-900 mb-2 text-center tracking-tight">Acceso Personal</h1>
             <p id="mainDesc" class="text-slate-500 text-center mb-8">Gestiona tu carrera profesional</p>
 
-            <!-- Contenedor de errores dinámico -->
+            <!-- Errores -->
             <div id="errorMessage" class="mb-8 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded-r-2xl">
                 <div class="flex items-center">
                     <i class="fas fa-exclamation-circle mr-3"></i>
@@ -140,6 +140,7 @@
                 </div>
             </div>
 
+            <!-- Selector -->
             <div id="selectorContainer" class="type-selector mb-10 mx-auto max-w-[300px] border border-slate-200">
                 <div id="optionUser" class="type-option active" onclick="updateTheme('user')">Talento</div>
                 <div id="optionBusiness" class="type-option" onclick="updateTheme('business')">Empresa</div>
@@ -182,15 +183,17 @@
             <div class="mt-10 text-center">
                 <p class="text-slate-400 text-sm font-medium">
                     ¿No tienes una cuenta? 
-                    <a href="javascript:void(0)" onclick="window.location.href='/register'" id="linkAction" class="text-indigo-600 font-extrabold hover:underline">Regístrate gratis</a>
+                    <a href="javascript:void(0)" onclick="goToRegister()" id="linkAction" class="text-indigo-600 font-extrabold hover:underline">Regístrate gratis</a>
                 </p>
             </div>
         </div>
     </div>
 
     <script>
-        // Función para cambiar visualmente entre Talento y Empresa
+        let currentType = 'user';
+
         function updateTheme(type) {
+            currentType = type;
             const body = document.getElementById('mainBody');
             const glow = document.getElementById('glowEffect');
             const card = document.getElementById('loginCard');
@@ -202,6 +205,7 @@
             const desc = document.getElementById('mainDesc');
             const icon = document.getElementById('mainIcon');
             const label = document.getElementById('labelIdentifier');
+            const inputField = document.getElementById('email');
             const inputIcon = document.getElementById('inputIcon');
             const submitBtn = document.getElementById('submitBtn');
             const logoBox = document.getElementById('logoBox');
@@ -223,7 +227,9 @@
                 title.innerText = 'Portal Corporativo';
                 desc.innerText = 'Accede a tus herramientas de reclutamiento';
                 icon.className = 'fas fa-building text-4xl';
-                label.innerText = 'ID Corporativo / Email de Empresa';
+                label.innerText = 'RTN de Empresa / Correo';
+                inputField.type = 'text';
+                inputField.placeholder = 'Ingrese RTN o Email';
                 inputIcon.className = 'fas fa-briefcase';
                 
                 submitBtn.className = 'w-full py-5 bg-cyan-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-cyan-700 transition-all shadow-xl shadow-cyan-900/40 active:scale-[0.98] mt-4 flex items-center justify-center';
@@ -243,6 +249,8 @@
                 desc.innerText = 'Gestiona tu carrera profesional';
                 icon.className = 'fas fa-user-astronaut text-4xl';
                 label.innerText = 'Correo Electrónico';
+                inputField.type = 'email';
+                inputField.placeholder = 'ejemplo@correo.com';
                 inputIcon.className = 'fas fa-at';
 
                 submitBtn.className = 'w-full py-5 bg-indigo-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-[0.98] mt-4 flex items-center justify-center';
@@ -253,13 +261,18 @@
             }
         }
 
-        // Manejo del envío del formulario mediante AJAX/Fetch
+        function goToRegister() {
+            // Redirige según el tipo seleccionado actualmente
+            window.location.href = currentType === 'business' ? '/registro-empresa' : '/registro-aspirante';
+        }
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const type = document.getElementById('selectorContainer').classList.contains('is-enterprise') ? 'business' : 'user';
+            // Se envía 'business' o 'user' para que el backend busque en la tabla correcta
+            const type = currentType; 
             
             const errorBox = document.getElementById('errorMessage');
             const errorText = document.getElementById('errorText');
@@ -272,7 +285,6 @@
             errorBox.style.display = 'none';
 
             try {
-                // Se conecta al endpoint de la API configurado en app.py
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -282,16 +294,14 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Si el login es correcto, redirige al dashboard definido en app.py
                     window.location.href = data.redirect_url;
                 } else {
-                    // Muestra error devuelto por el servidor Flask
                     errorBox.style.display = 'block';
                     errorText.innerText = data.message || "Credenciales incorrectas.";
                 }
             } catch (err) {
                 errorBox.style.display = 'block';
-                errorText.innerText = "Error de conexión: Asegúrate de que el servidor Flask esté activo.";
+                errorText.innerText = "Error de conexión con el servidor.";
             } finally {
                 btnText.innerText = originalText;
                 submitBtn.disabled = false;
