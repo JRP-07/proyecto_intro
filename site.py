@@ -492,6 +492,83 @@ def ver_usuarios():
         
     except Exception as e:
         return f"Error al consultar la base de datos: {str(e)}"
+    
+    
+    # Panel de administrador de vacantes
+@app.route('/admin/vacantes-p')
+def ver_vacantes_p():
+    return render_template('panel_admin.html')
+
+@app.route('/admin/vacantes')
+def admin_vacantes():
+    db = sqlite3.connect(DB_PATH)
+    # Forzamos que el cursor devuelva diccionarios o filas accesibles por nombre
+    db.row_factory = sqlite3.Row 
+    cursor = db.cursor()
+
+    try:
+        # Ejecutamos la consulta. Asegúrate de que las tablas 'vacantes' y 'empresas' existan
+        cursor.execute('''
+            SELECT 
+                v.id, 
+                v.titulo, 
+                v.ubicacion, 
+                v.area, 
+                v.salario, 
+            v.modalidad, 
+            v.estado, 
+            v.requisitos,
+            v.descripcion,
+            v.fecha_publicacion,
+            e.nombre_empresa AS empresa,
+            (SELECT COUNT(*) FROM aplicaciones p WHERE p.vacante_id = v.id) as total_postulados
+            FROM vacantes v
+            JOIN perfiles_empresas e ON v.empresa_id = e.RTN
+        ''')
+        
+        rows = cursor.fetchall()
+        vacantes = [dict(row) for row in rows]
+        
+        # Estadísticas para los widgets del dashboard
+        stats = {
+            "total": len(vacantes),
+            "activas": len([v for v in vacantes if v['estado'] == 'activa']),
+            "pendientes": len([v for v in vacantes if v['estado'] == 'pendiente']),
+            "postulaciones_total": sum(v['total_postulados'] for v in vacantes)
+        }
+
+        return render_template('vacantes.html', vacantes=vacantes, stats=stats)
+    
+    except Exception as e:
+        # Esto imprimirá el error real en tu terminal de Python/Flask
+        # Revisa la consola para ver si dice "no such table" o "no such column"
+        print("--- ERROR CRÍTICO EN ADMIN_VACANTES ---")
+        print(str(e))
+        print("---------------------------------------")
+        return f"Error detallado para depuración: {str(e)}", 500
+
+@app.route('/api/admin/vacantes')
+def ver_vacantes():
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT v.*, p.nombre_empresa
+            FROM vacantes v
+            LEFT JOIN perfiles_empresas p ON v.empresa_id = p.RTN
+        ''')
+        vacantes = cursor.fetchall()
+        conn.close()
+        
+        return jsonify([dict(ix) for ix in vacantes])
+        
+    except Exception as e:
+        return jsonify({"message": f"Error al consultar la base de datos: {str(e)}"}), 500
+    
+
+    
 
 # --- API DE REGISTRO Y AUTENTICACIÓN ---
 #codigo para registrarse como usuario

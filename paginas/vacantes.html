@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Gestión de Ofertas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .admin-card-gradient { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-[#f1f5f9] text-slate-800 min-h-screen flex">
+
+    <!-- Sidebar Lateral (Navegación Admin) -->
+    <aside class="w-64 bg-slate-900 text-white hidden lg:flex flex-col sticky top-0 h-screen">
+        <div class="p-8">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-bolt-lightning text-white"></i>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight">Admin<span class="text-indigo-400">Panel</span></span>
+            </div>
+        </div>
+        <nav class="flex-1 px-4 space-y-2">
+            <a href="#" class="flex items-center gap-3 p-3 rounded-xl bg-slate-800 text-indigo-400 font-semibold transition">
+                <i class="fa-solid fa-briefcase w-5"></i> Gestión Vacantes
+            </a>
+        </nav>
+        <div class="p-6 border-t border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center border-2 border-indigo-500">
+                    <i class="fa-solid fa-user-gear"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-bold leading-none">Super Admin</p>
+                    <p class="text-[10px] text-slate-500 mt-1 uppercase">Soporte Nivel 1</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 p-4 md:p-8 lg:p-10">
+        
+        <!-- Header de Sección -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Consola de Vacantes</h1>
+                <p class="text-slate-500 font-medium">Supervisa y audita las ofertas publicadas por las empresas.</p>
+            </div>
+            <div class="flex gap-3">
+            </div>
+        </header>
+
+        <!-- Widgets de Estadísticas -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+                <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Ofertas</p>
+                <h3 class="text-2xl font-black text-slate-900 mt-1">{{ stats.total }}</h3>
+            </div>
+            <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+                <div class="w-10 h-10 bg-green-50 text-green-600 rounded-xl flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-check-double"></i>
+                </div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Publicadas</p>
+                <h3 class="text-2xl font-black text-slate-900 mt-1">{{ stats.activas }}</h3>
+            </div>
+            <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+                <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pendientes</p>
+                <h3 class="text-2xl font-black text-slate-900 mt-1">{{ stats.pendientes }}</h3>
+            </div>
+            <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+                <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Postulados</p>
+                <h3 class="text-2xl font-black text-slate-900 mt-1">{{ stats.postulaciones_total }}</h3>
+            </div>
+        </section>
+
+        <!-- Tabla de Control -->
+        <section class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/50">
+                <div class="relative w-full md:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" placeholder="Buscar por título o empresa..." class="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                </div>
+                <div class="flex gap-2">
+                    <select class="bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option>Todos los Estados</option>
+                        <option>Activas</option>
+                        <option>Pendientes</option>
+                        <option>Cerradas</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-white text-[10px] uppercase font-black text-slate-400 tracking-widest border-b border-slate-100">
+                            <th class="px-8 py-5">Información Básica</th>
+                            <th class="px-6 py-5">Empresa</th>
+                            <th class="px-6 py-5">Alcance</th>
+                            <th class="px-6 py-5">Estado</th>
+                            <th class="px-8 py-5 text-right">Herramientas</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for vacante in vacantes %}
+                        <tr class="hover:bg-slate-50/50 transition-colors group">
+                            <td class="px-8 py-5">
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-slate-900 group-hover:text-indigo-600 transition">{{ vacante.titulo }}</span>
+                                    <span class="text-[10px] text-slate-400 font-bold mt-0.5 uppercase tracking-tighter">{{ vacante.area }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 bg-slate-100 rounded-md flex items-center justify-center text-[10px] text-slate-500 font-bold border border-slate-200 italic">
+                                        {{ vacante.empresa[:2].upper() }}
+                                    </div>
+                                    <span class="text-sm font-semibold text-slate-700">{{ vacante.empresa }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex flex-col">
+                                    <div class="flex items-center text-xs text-slate-500">
+                                        <i class="fa-solid fa-users mr-1.5 opacity-60 text-[10px]"></i>
+                                        <span class="font-medium">{{ vacante.total_postulados }} aplicantes</span>
+                                    </div>
+                                    <div class="flex items-center text-[10px] text-slate-400 font-bold uppercase mt-1">
+                                        {{ vacante.modalidad }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider
+                                    {{ 'bg-green-100 text-green-700' if vacante.estado == 'activa' else 'bg-amber-100 text-amber-700' }}">
+                                    {{ vacante.estado }}
+                                </span>
+                            </td>
+                            <td class="px-8 py-5 text-right space-x-1">
+                                <button onclick='showDetails({{ vacante|tojson|safe }})' class="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition">
+                                    <i class="fa-solid fa-magnifying-glass-chart text-sm"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+                <p class="text-xs text-slate-500 font-medium">Mostrando {{ vacantes|length }} resultados técnicos</p>
+                <div class="flex gap-2">
+                    <button class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white transition"><i class="fa-solid fa-chevron-left text-[10px]"></i></button>
+                    <button class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white transition"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de Auditoría Admin -->
+    <div id="adminModal" class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 sm:p-6">
+        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onclick="closeModal()"></div>
+        
+        <div class="relative bg-white w-full max-w-3xl rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Header Modal -->
+            <div class="p-8 bg-indigo-600 text-white flex justify-between items-start">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span id="m-status-badge" class="px-2 py-0.5 bg-white/20 rounded text-[9px] font-black uppercase tracking-widest border border-white/20">ACTIVA</span>
+                        <span class="text-white/60 text-[10px] font-bold">Ref ID: #VAC-<span id="m-id"></span></span>
+                    </div>
+                    <h2 id="m-titulo" class="text-2xl font-extrabold tracking-tight"></h2>
+                    <p id="m-empresa" class="text-indigo-100 font-semibold text-sm"></p>
+                </div>
+                <button onclick="closeModal()" class="w-10 h-10 bg-black/10 rounded-full flex items-center justify-center hover:bg-black/20 text-white transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Body Modal -->
+            <div class="p-8 overflow-y-auto custom-scrollbar">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Columna Info Técnica -->
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Resumen de Oferta</h4>
+                            <div class="bg-slate-50 rounded-2xl p-5 space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-slate-500 font-medium">Salario:</span>
+                                    <span id="m-salario" class="text-sm font-bold text-slate-800"></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-slate-500 font-medium">Ubicación:</span>
+                                    <span id="m-ubicacion" class="text-sm font-bold text-slate-800"></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-slate-500 font-medium">Modalidad:</span>
+                                    <span id="m-modalidad" class="text-sm font-bold text-slate-800"></span>
+                                </div>
+                                <div class="flex justify-between items-center pt-2 border-t border-slate-200">
+                                    <span class="text-xs text-slate-500 font-medium">Fecha Pub:</span>
+                                    <span id="m-fecha" class="text-sm font-bold text-slate-800"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Requisitos de Auditoría</h4>
+                            <p id="m-requisitos" class="text-sm text-slate-600 leading-relaxed italic bg-amber-50/50 p-4 rounded-xl border-l-4 border-amber-200"></p>
+                        </div>
+                    </div>
+
+                    <!-- Columna Descripción -->
+                    <div>
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Cuerpo de la Publicación</h4>
+                        <div class="bg-slate-50 rounded-2xl p-5 h-full">
+                            <p id="m-descripcion" class="text-sm text-slate-600 leading-relaxed whitespace-pre-line"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="p-6 bg-slate-50 border-t flex flex-col sm:flex-row gap-3 justify-end">
+                <button onclick="closeModal()" class="px-6 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100 transition">Cerrar Auditoría</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showDetails(v) {
+            document.getElementById('m-id').innerText = v.id;
+            document.getElementById('m-titulo').innerText = v.titulo;
+            document.getElementById('m-empresa').innerText = v.empresa;
+            document.getElementById('m-salario').innerText = v.salario || 'Confidencial';
+            document.getElementById('m-ubicacion').innerText = v.ubicacion;
+            document.getElementById('m-modalidad').innerText = v.modalidad;
+            document.getElementById('m-fecha').innerText = v.fecha_publicacion;
+            document.getElementById('m-descripcion').innerText = v.descripcion || 'Sin descripción detallada.';
+            document.getElementById('m-requisitos').innerText = v.requisitos || 'No se especificaron requisitos.';
+            
+            const badge = document.getElementById('m-status-badge');
+            badge.innerText = v.estado;
+            badge.className = `px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border ${v.estado === 'activa' ? 'bg-green-500/20 border-green-400' : 'bg-amber-500/20 border-amber-400'}`;
+
+            document.getElementById('adminModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

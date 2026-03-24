@@ -42,27 +42,9 @@
     </nav>
 
     <main class="max-w-7xl mx-auto p-6">
-        <!-- Header & Stats -->
+        <!-- Header -->
         <div class="mb-8">
-            <h2 class="text-2xl font-bold text-slate-800 mb-6">Resumen de Candidatos</h2>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <p class="text-slate-400 text-sm font-medium mb-1">Total Perfiles</p>
-                    <h3 class="text-3xl font-bold text-slate-800" id="stat-total">0</h3>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <p class="text-indigo-500 text-sm font-medium mb-1">Remotos</p>
-                    <h3 class="text-3xl font-bold text-slate-800" id="stat-remoto">0</h3>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <p class="text-emerald-500 text-sm font-medium mb-1">Con Experiencia</p>
-                    <h3 class="text-3xl font-bold text-slate-800" id="stat-exp">0</h3>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <p class="text-amber-500 text-sm font-medium mb-1">Maestría/Doctorado</p>
-                    <h3 class="text-3xl font-bold text-slate-800" id="stat-edu">0</h3>
-                </div>
-            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-6">Resumen de Vacantes</h2>
         </div>
 
         <!-- Tabla y Filtros -->
@@ -70,7 +52,7 @@
             <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="relative w-full md:w-96">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="searchInput" placeholder="Buscar por nombre o habilidad..." 
+                    <input type="text" id="searchInput" placeholder="Buscar por título o empresa..." 
                         class="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
                 </div>
                 <div class="flex items-center space-x-3">
@@ -80,7 +62,7 @@
                         <option value="presencial">Presencial</option>
                         <option value="hibrido">Híbrido</option>
                     </select>
-                    <button onclick="fetchCandidatos()" class="px-4 py-3 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition">
+                    <button onclick="fetchVacantes()" class="px-4 py-3 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition">
                         <i class="fas fa-sync-alt"></i>
                     </button>
                 </div>
@@ -90,15 +72,15 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50/50">
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Candidato</th>
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Estudios</th>
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Experiencia</th>
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Modalidad/Jornada</th>
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Habilidades</th>
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Acción</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Título</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Empresa</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Ubicación</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Modalidad</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Salario</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Estado</th>
                         </tr>
                     </thead>
-                    <tbody id="candidatosTable" class="divide-y divide-slate-100">
+                    <tbody id="vacantesTable" class="divide-y divide-slate-100">
                         <!-- Los datos se cargarán aquí -->
                     </tbody>
                 </table>
@@ -110,45 +92,33 @@
             </div>
 
             <div id="emptyState" class="p-20 text-center hidden">
-                <i class="fas fa-user-slash text-5xl text-slate-200 mb-4"></i>
-                <p class="text-slate-500 font-medium">No se encontraron perfiles registrados.</p>
+                <i class="fas fa-briefcase text-5xl text-slate-200 mb-4"></i>
+                <p class="text-slate-500 font-medium">No se encontraron vacantes registradas.</p>
             </div>
         </div>
     </main>
 
     <script>
-        // Simulamos una base de datos para demostración. 
-        // En tu caso, esto vendría de un `fetch('/api/get-candidatos')`
-        let candidatos = [];
+        let vacantes = [];
 
-        async function fetchCandidatos() {
+        async function fetchVacantes() {
             document.getElementById('loadingState').classList.remove('hidden');
-            document.getElementById('candidatosTable').innerHTML = '';
+            document.getElementById('vacantesTable').innerHTML = '';
             
             try {
-                // Simulación de llamada API
-                // const response = await fetch('/api/get-candidatos');
-                // candidatos = await response.json();
+                const response = await fetch('/api/admin/vacantes');
+                vacantes = await response.json();
                 
-                // DATOS DE PRUEBA (Para que veas cómo se ve)
-                setTimeout(() => {
-                    candidatos = [
-                        { nombre: "Juan Pérez", edad: 24, telefono: "+504 9988-7766", residencia: "Tegucigalpa", estudios: "universitario", estudia_hoy: "no", modalidad: "remoto", jornada: "full", experiencia: "si", anios_exp: 3, habilidades: ["Programación", "Liderazgo"] },
-                        { nombre: "María García", edad: 21, telefono: "+504 3344-5566", residencia: "San Pedro Sula", estudios: "tecnico", estudia_hoy: "si", modalidad: "hibrido", jornada: "part", experiencia: "no", anios_exp: 0, habilidades: ["Diseño UI/UX", "Idiomas"] },
-                        { nombre: "Carlos Ruiz", edad: 28, telefono: "+504 8877-6655", residencia: "La Ceiba", estudios: "maestria", estudia_hoy: "no", modalidad: "presencial", jornada: "full", experiencia: "si", anios_exp: 6, habilidades: ["Ventas", "Marketing Digital", "Resolución de Conflictos"] }
-                    ];
-                    renderCandidatos(candidatos);
-                    updateStats(candidatos);
-                    document.getElementById('loadingState').classList.add('hidden');
-                }, 1000);
+                renderVacantes(vacantes);
+                document.getElementById('loadingState').classList.add('hidden');
 
             } catch (error) {
                 console.error("Error al obtener datos:", error);
             }
         }
 
-        function renderCandidatos(data) {
-            const table = document.getElementById('candidatosTable');
+        function renderVacantes(data) {
+            const table = document.getElementById('vacantesTable');
             const empty = document.getElementById('emptyState');
             
             if (data.length === 0) {
@@ -158,86 +128,47 @@
             empty.classList.add('hidden');
             table.innerHTML = '';
 
-            data.forEach((c, index) => {
+            data.forEach((v, index) => {
                 const row = document.createElement('tr');
                 row.className = "hover:bg-slate-50/50 transition cursor-pointer";
-                
-                // Formateo de etiquetas
-                const skillBadges = c.habilidades.map(s => 
-                    `<span class="px-2 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-md mr-1">${s}</span>`
-                ).join('');
 
-                const modColor = c.modalidad === 'remoto' ? 'text-indigo-600 bg-indigo-50' : 
-                                 c.modalidad === 'hibrido' ? 'text-amber-600 bg-amber-50' : 'text-slate-600 bg-slate-100';
+                const statusColor = v.estado === 'activa' ? 'text-emerald-600 bg-emerald-50' : 'text-slate-600 bg-slate-100';
 
                 row.innerHTML = `
                     <td class="px-6 py-4">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 font-bold text-xs uppercase">
-                                ${c.nombre.charAt(0)}
-                            </div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-800">${c.nombre}</p>
-                                <p class="text-xs text-slate-400">${c.residencia} • ${c.edad} años</p>
-                            </div>
-                        </div>
+                        <p class="text-sm font-bold text-slate-800">${v.titulo}</p>
+                        <p class="text-xs text-slate-400">${v.area}</p>
                     </td>
+                    <td class="px-6 py-4 text-sm text-slate-600">${v.nombre_empresa || 'N/A'}</td>
+                    <td class="px-6 py-4 text-sm text-slate-600">${v.ubicacion}</td>
+                    <td class="px-6 py-4 text-sm text-slate-600 capitalize">${v.modalidad}</td>
+                    <td class="px-6 py-4 text-sm text-slate-600">${v.salario}</td>
                     <td class="px-6 py-4">
-                        <span class="text-xs font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded-md capitalize">${c.estudios}</span>
-                        ${c.estudia_hoy === 'si' ? '<p class="text-[10px] text-indigo-500 mt-1 font-bold">Estudiante activo</p>' : ''}
-                    </td>
-                    <td class="px-6 py-4 text-sm text-slate-600">
-                        ${c.experiencia === 'si' ? `<b>${c.anios_exp} años</b>` : '<span class="text-slate-300 italic text-xs">Sin exp.</span>'}
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex flex-col gap-1">
-                            <span class="inline-block w-fit px-2 py-1 rounded-md text-[10px] font-bold uppercase ${modColor}">${c.modalidad}</span>
-                            <span class="text-[10px] text-slate-400 italic">${c.jornada === 'full' ? 'Tiempo Completo' : 'Medio Tiempo'}</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex flex-wrap gap-y-2">${skillBadges}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <button onclick="contactUser('${c.telefono}')" class="text-indigo-600 hover:text-indigo-800 transition text-sm font-bold">
-                            <i class="fab fa-whatsapp"></i> Contactar
-                        </button>
+                        <span class="inline-block w-fit px-2 py-1 rounded-md text-[10px] font-bold uppercase ${statusColor}">${v.estado}</span>
                     </td>
                 `;
                 table.appendChild(row);
             });
         }
 
-        function updateStats(data) {
-            document.getElementById('stat-total').innerText = data.length;
-            document.getElementById('stat-remoto').innerText = data.filter(c => c.modalidad === 'remoto').length;
-            document.getElementById('stat-exp').innerText = data.filter(c => c.experiencia === 'si').length;
-            document.getElementById('stat-edu').innerText = data.filter(c => ['maestria', 'doctorado'].includes(c.estudios)).length;
-        }
-
-        function contactUser(tel) {
-            const cleanTel = tel.replace(/\s/g, '').replace(/-/g, '');
-            window.open(`https://wa.me/${cleanTel}`, '_blank');
-        }
-
         // Filtros en tiempo real
         document.getElementById('searchInput').addEventListener('input', function(e) {
             const term = e.target.value.toLowerCase();
-            const filtered = candidatos.filter(c => 
-                c.nombre.toLowerCase().includes(term) || 
-                c.habilidades.some(h => h.toLowerCase().includes(term))
+            const filtered = vacantes.filter(v => 
+                v.titulo.toLowerCase().includes(term) || 
+                (v.nombre_empresa && v.nombre_empresa.toLowerCase().includes(term))
             );
-            renderCandidatos(filtered);
+            renderVacantes(filtered);
         });
 
         document.getElementById('filterModalidad').addEventListener('change', function(e) {
             const val = e.target.value;
-            const filtered = val === 'todos' ? candidatos : candidatos.filter(c => c.modalidad === val);
-            renderCandidatos(filtered);
+            const filtered = val === 'todos' ? vacantes : vacantes.filter(v => v.modalidad === val);
+            renderVacantes(filtered);
         });
 
         // Inicio
-        window.onload = fetchCandidatos;
+        window.onload = fetchVacantes;
     </script>
 </body>
 
